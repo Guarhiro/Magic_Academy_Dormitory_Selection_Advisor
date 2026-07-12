@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>レガリア王立魔術学院 ― 寮分け＆キャラ生成診断</title>
-<meta name="description" content="あなたが創るキャラクターにふさわしい寮を診断し、キャラクター設定のスターターキットを生成します。" />
+<title>レガリア王立魔術学院 ― 寮分け＆人物共鳴診断</title>
+<meta name="description" content="所属寮、性格が近い人物、相性の良い人物を診断し、キャラクター設定のスターターキットを生成します。" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Noto+Serif+JP:wght@400;500;700;900&display=swap" rel="stylesheet" />
@@ -23,6 +23,11 @@
   @keyframes slideUp { from { opacity: 0; transform: translateY(24px);} to { opacity: 1; transform: translateY(0);} }
   @keyframes expandBar { from { width: 0; } }
   @keyframes floatCrest { 0%,100% { transform: translateY(0);} 50% { transform: translateY(-6px);} }
+  .persona-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .persona-card { min-width: 0; }
+  @media (max-width: 620px) {
+    .persona-grid { grid-template-columns: 1fr; }
+  }
   ::-webkit-scrollbar { width: 8px; }
   ::-webkit-scrollbar-track { background: #07060c; }
   ::-webkit-scrollbar-thumb { background: #3a362e; border-radius: 4px; }
@@ -187,6 +192,217 @@ const QUESTIONS = [
   ]),
 ];
 
+/* ─────────────── 人物診断データ ─────────────── */
+const ANSWER_TAGS = [
+  [["loyal","protective"],["curious","truth"],["ambitious","status"],["artistic","legacy"]],
+  [["active","combat"],["research","introvert"],["social","strategic"],["creative","artistic"]],
+  [["direct","impulsive"],["guarded","analytical"],["strategic","controlling"],["charismatic","dramatic"]],
+  [["impulsive","direct"],["detached","independent"],["guarded","controlling"],["emotional","devoted"]],
+  [["protective","devoted"],["obsessive","curious"],["proud","ambitious"],["devoted","emotional"]],
+  [["loyal","flexible"],["independent","rebellious"],["disciplined","strategic"],["rebellious","artistic"]],
+  [["combat","direct"],["research","curious"],["strategic","ambitious"],["performer","charismatic"]],
+  [["awkward","devoted"],["detached","independent"],["strategic","controlling"],["romantic","emotional"]],
+  [["extrovert","active","competitive"],["introvert","guarded"],["organizer","social"],["performer","charismatic"]],
+  [["morning","disciplined"],["nocturnal","research"],["irregular","independent"],["disciplined","perfectionist"]],
+  [["blunt","direct"],["analytical","detached"],["refined","diplomatic"],["dramatic","expressive"]],
+  [["impulsive","direct"],["analytical","calm"],["diplomatic","strategic"],["charismatic","performer"]],
+  [["loyal","supportive"],["independent","detached"],["perfectionist","ambitious"],["memorable","expressive"]],
+  [["martial","disciplined"],["lonely","introvert"],["noble","ambitious"],["unconventional","independent"]],
+  [["destructive","impulsive"],["forbidden","research"],["controlling","strategic"],["illusion","emotional"]],
+  [["active","combat"],["lab","research"],["social","strategic"],["stage","performer"]],
+  [["generous","supportive","competitive"],["analytical","curious"],["opportunistic","strategic"],["admiring","artistic"]],
+  [["loyal","devoted"],["truth","obsessive"],["status","ambitious"],["legacy","artistic"]],
+];
+
+const TAG_LABELS = {
+  loyal:"仲間への忠誠",protective:"守る強さ",curious:"知識欲",truth:"真実への執着",
+  ambitious:"向上心",status:"地位への意識",artistic:"芸術性",legacy:"残したい証",
+  active:"行動力",combat:"戦闘志向",research:"研究気質",introvert:"内向性",
+  social:"社交性",strategic:"戦略性",creative:"創造性",direct:"率直さ",
+  impulsive:"衝動性",guarded:"本心を隠す傾向",analytical:"分析力",controlling:"支配性",
+  charismatic:"カリスマ",dramatic:"演技性",detached:"感情から距離を置く姿勢",independent:"独立心",
+  emotional:"感情の強さ",devoted:"一途さ",obsessive:"執着心",proud:"高い矜持",
+  flexible:"柔軟さ",rebellious:"反骨心",disciplined:"規律",performer:"表現者気質",
+  awkward:"不器用な愛情",romantic:"恋への情熱",extrovert:"外向性",competitive:"負けず嫌い",
+  organizer:"統率力",morning:"朝型",nocturnal:"夜型",irregular:"気ままさ",
+  perfectionist:"完璧主義",blunt:"ぶっきらぼうさ",refined:"気品",diplomatic:"対人調整力",
+  expressive:"表現力",calm:"冷静さ",supportive:"支える姿勢",memorable:"特別でありたい願い",
+  martial:"鍛錬への献身",lonely:"孤独",noble:"名門の責任",unconventional:"型破りさ",
+  destructive:"破壊性",forbidden:"禁忌への接近",illusion:"幻惑性",lab:"実験室への親和性",
+  stage:"舞台への親和性",generous:"素直な称賛",opportunistic:"機を見る力",admiring:"美への憧れ",
+};
+
+const CHARACTERS = [
+  {
+    id:"emma",name:"エマ・ペルライン",dorm:"lumiere",kind:"生徒",affiliation:"ルミエール寮・3年生",
+    summary:"鋭い観察眼と毒舌で他人を遠ざけながら、信じた相手には全身で甘える人間不信の魅了術師。",
+    quote:"嘘もお世辞もいらない。信じられるものだけがあればいい。",
+    signals:{guarded:3,controlling:3,emotional:2,devoted:3,artistic:1},compatibleWith:["loyal","supportive","direct","disciplined"],traits:["人間不信","毒舌","支配欲"]
+  },
+  {
+    id:"rein",name:"レイン・アルセリオ",dorm:"lumiere",kind:"生徒",affiliation:"ルミエール寮・3年生",
+    summary:"上品で社交的な仮面の奥に、強い自己愛と支配者気質を隠す天才アクセサリー職人。",
+    quote:"僕を拒むなんて、ずいぶん生意気だね。",
+    signals:{refined:3,charismatic:2,controlling:3,artistic:2,perfectionist:2,proud:2},compatibleWith:["admiring","emotional","artistic","devoted"],traits:["優雅","自己愛","職人気質"]
+  },
+  {
+    id:"noise",name:"ノイゼ・コルディア",dorm:"lumiere",kind:"生徒",affiliation:"ルミエール寮・最高学年",
+    summary:"頭脳を勉学よりも粘着質ないたずらへ注ぎ込む、捻くれた飛び級の愉快犯。",
+    quote:"愚かだね。だからこそ、実に愉快なのだよ。",
+    signals:{rebellious:3,curious:2,independent:3,unconventional:3,strategic:1},compatibleWith:["curious","rebellious","independent","analytical"],traits:["いたずら好き","飛び級","捻くれ者"]
+  },
+  {
+    id:"jill",name:"ジル・ヴェルガイア",dorm:"lumiere",kind:"生徒",affiliation:"ルミエール寮・2年生",
+    summary:"歌と明るさで人を照らし、拒絶されても双子の弟を陰から見守り続ける陽気な世話焼き。",
+    quote:"思い詰めたら、せっかくの顔が台無しだよ。",
+    signals:{extrovert:3,charismatic:2,artistic:3,supportive:3,devoted:2,emotional:1},compatibleWith:["introvert","guarded","lonely","devoted"],traits:["陽気","歌好き","兄弟思い"]
+  },
+  {
+    id:"statis",name:"スタティス・フォン・ディアマンド",dorm:"lumiere",kind:"生徒",affiliation:"ルミエール寮・3年生",
+    summary:"美貌と魔法に絶対の自信を持つ逸材。傲慢さの奥に努力家の顔と強い独占欲を隠す。",
+    quote:"僕の美貌と魔法に惹かれるのは、当然のことだよ。",
+    signals:{proud:3,perfectionist:3,artistic:2,analytical:2,controlling:2,guarded:1},compatibleWith:["ambitious","artistic","analytical","devoted"],traits:["自信家","努力家","独占欲"]
+  },
+  {
+    id:"neiras",name:"Neiras（ネイラス）",dorm:"lumiere",kind:"生徒",affiliation:"ルミエール寮・幻影師",
+    summary:"現実を書き換えるほど眩しい幻影師。喝采の中心で、喪った相棒と本当の自分を探し続ける。",
+    quote:"現実より、美しいものを見せてあげる。",
+    signals:{performer:3,charismatic:3,artistic:3,dramatic:2,legacy:2,obsessive:2,guarded:2},compatibleWith:["analytical","devoted","loyal","supportive"],traits:["幻影","人気者","喪失"]
+  },
+  {
+    id:"canon",name:"Canon（カノン）",dorm:"lumiere",kind:"生徒",affiliation:"ルミエール寮・神楽の舞姫",
+    summary:"誰も悲しませない太陽のような舞姫。笑顔の奥で、滅びた故郷の祈りと継承を一人で背負う。",
+    quote:"大丈夫。光は、ちゃんと次へ繋げられます。",
+    signals:{performer:3,supportive:3,devoted:2,disciplined:2,guarded:2,legacy:3,artistic:3},compatibleWith:["guarded","lonely","emotional","devoted"],traits:["神楽","献身","継承"]
+  },
+  {
+    id:"shion",name:"シオン・幽蘭",dorm:"corvus",kind:"生徒",affiliation:"コルウス寮・1年生",
+    summary:"人を避けて地下に迷宮まで築いた魔法オタク。臆病だが、危険な研究分野では驚くほど優秀。",
+    quote:"研究なら、少しだけ一緒に進めてもいいかも。",
+    signals:{introvert:3,research:3,forbidden:2,curious:3,lonely:2,guarded:2},compatibleWith:["curious","supportive","introvert","loyal"],traits:["引きこもり","迷宮術式","魔法オタク"]
+  },
+  {
+    id:"silvere",name:"シルヴェール・メルシィ",dorm:"corvus",kind:"生徒",affiliation:"コルウス寮・3年生",
+    summary:"昼は頼りなくおどおど、夜は狂気を帯びた魔力狩りの研究者へ変わる二面性の持ち主。",
+    quote:"今日も魔力狩りだ。プキュイの食事を集めないとね。",
+    signals:{introvert:3,nocturnal:3,research:3,forbidden:2,irregular:2,guarded:2},compatibleWith:["supportive","introvert","nocturnal","curious"],traits:["昼夜の二面性","吸収魔法","魔力狩り"]
+  },
+  {
+    id:"shuri-shuna",name:"シュリ＆シュナ・メルクォート",dorm:"corvus",kind:"生徒",affiliation:"コルウス寮・2年生の双子",
+    summary:"創造と破壊、それぞれの専門魔法だけに没頭する首席の双子。興味の扉が開くと急に饒舌になる。",
+    quote:"その話、創造か破壊に関係ある？ なら続きを聞かせて。",
+    signals:{research:3,curious:3,detached:3,destructive:2,forbidden:2,perfectionist:2},compatibleWith:["curious","research","independent","detached"],traits:["創造と破壊","首席","研究没頭"]
+  },
+  {
+    id:"nero",name:"ネロ・ノクス",dorm:"corvus",kind:"生徒",affiliation:"コルウス寮・3年生（留年中）",
+    summary:"夢と睡眠を研究する無口な夜型研究者。人付き合いは苦手でも、疲れた相手を放っておけない。",
+    quote:"また寝てないね。薬を飲んで、少し休んで。",
+    signals:{introvert:3,nocturnal:3,research:3,supportive:3,guarded:2,analytical:2},compatibleWith:["lonely","introvert","guarded","nocturnal"],traits:["夢見魔法","静かな優しさ","夜型"]
+  },
+  {
+    id:"gio",name:"ジオ・ヴェルガイア",dorm:"corvus",kind:"生徒",affiliation:"コルウス寮・2年生",
+    summary:"報われない努力と兄への劣等感を抱え、傷つく前に他人を拒絶してしまう不器用な弟。",
+    quote:"何も知らないくせに、簡単に近づかないで。",
+    signals:{introvert:3,lonely:3,guarded:3,ambitious:1,emotional:2,devoted:1},compatibleWith:["supportive","loyal","direct","devoted"],traits:["劣等感","努力家","不器用"]
+  },
+  {
+    id:"rize",name:"リゼ・アークライト",dorm:"makina",kind:"生徒",affiliation:"マキナ寮・2年生",
+    summary:"考えるより先に身体が動く豪快な突撃役。喧嘩っ早いが、仲間を傷つける者だけは許さない。",
+    quote:"細かいことは後！ まず動いてから考える！",
+    signals:{active:3,direct:3,impulsive:3,loyal:3,protective:3,combat:3},compatibleWith:["guarded","introvert","analytical","loyal"],traits:["一直線","突撃力","仲間思い"]
+  },
+  {
+    id:"ash",name:"アッシュ・グレイヴ",dorm:"makina",kind:"生徒",affiliation:"マキナ寮・4年生",
+    summary:"自分の損傷には無頓着なのに、後輩の無茶には静かに怒る、寡黙な義手義足の先輩。",
+    quote:"うるさい寮だよな。嫌いじゃないけど。",
+    signals:{guarded:3,calm:3,protective:3,supportive:2,martial:2,disciplined:2},compatibleWith:["impulsive","active","lonely","loyal"],traits:["寡黙","身体改造","後輩思い"]
+  },
+  {
+    id:"carmina",name:"カルミナ・ブリジット",dorm:"makina",kind:"生徒",affiliation:"マキナ寮・4年生",
+    summary:"剣技も生活も一寸の狂いを許さない歩く軍律。厳格な外面に、身内への情と可愛い物好きを隠す。",
+    quote:"壊していいのは、己の限界と敵の盾だけだ。",
+    signals:{disciplined:3,perfectionist:3,protective:3,martial:3,loyal:2,guarded:2},compatibleWith:["impulsive","rebellious","loyal","devoted"],traits:["規律","魔法剣士","身内思い"]
+  },
+  {
+    id:"ignis",name:"イグニス・レイヴン",dorm:"makina",kind:"生徒",affiliation:"マキナ寮・3年生",
+    summary:"悪気なく他人の感情を踏み抜く喧嘩好きの天才。心を開くと、その力を相手を守るために使う。",
+    quote:"できないなら辞めればいい。何を怒ってるんだ？",
+    signals:{detached:3,direct:3,combat:3,curious:2,impulsive:2,protective:2},compatibleWith:["emotional","supportive","direct","loyal"],traits:["天才","無神経","隠れた心配性"]
+  },
+  {
+    id:"lion-leon",name:"リオン＆レオン・ヴァルフレア",dorm:"makina",kind:"生徒",affiliation:"マキナ寮・1年生の双子",
+    summary:"陰と陽の正反対な気質を持ちながら、前衛と支援を交代して一つの大剣を振るう負けず嫌いの双子。",
+    quote:"僕たちは二人で一つ。次の前線は代われ。",
+    signals:{combat:3,active:3,loyal:3,direct:2,impulsive:2,competitive:3},compatibleWith:["active","loyal","competitive","impulsive"],traits:["双子連携","大剣","負けず嫌い"]
+  },
+  {
+    id:"edel",name:"エーデル・ヴァレンティア",dorm:"medicis",kind:"生徒",affiliation:"メディシス寮・3年生",
+    summary:"礼儀正しく公平な治癒の天才。その愛は、自分も世界も作り変えられるほど純粋で異質。",
+    quote:"あなたの隣にいるためなら、私はいくらでも変われます。",
+    signals:{refined:3,perfectionist:3,controlling:3,devoted:3,obsessive:3,guarded:2},compatibleWith:["devoted","guarded","ambitious","romantic"],traits:["治癒の天才","献身","異質な愛"]
+  },
+  {
+    id:"yucca",name:"ユッカ・シーカヴィルタ",dorm:"medicis",kind:"生徒",affiliation:"メディシス寮・4年生",
+    summary:"誰にでも穏やかに手を差し伸べる聖人。その優しさは、他人へ期待しない無自覚な傲慢さでもある。",
+    quote:"大丈夫。これくらいで怒ったりしないよ。",
+    signals:{refined:2,supportive:3,proud:3,detached:3,protective:2,perfectionist:2},compatibleWith:["impulsive","lonely","supportive","loyal"],traits:["穏やか","医療魔術","無自覚な傲慢"]
+  },
+  {
+    id:"euphemia",name:"ユーフェミア・アシュ・ヴァイルツ",dorm:"medicis",kind:"生徒",affiliation:"メディシス寮・2年生",
+    summary:"理想の聖女として振る舞う完璧な令嬢。努力を止められず、向上心のない者へ容赦がない。",
+    quote:"なめくじの方が、もう少し向上心がありますわね。",
+    signals:{refined:3,perfectionist:3,ambitious:3,controlling:2,disciplined:3,guarded:2},compatibleWith:["ambitious","disciplined","perfectionist","guarded"],traits:["理想の聖女","努力家","選民思想"]
+  },
+  {
+    id:"runo",name:"ルーノ・ナイトフォール",dorm:"medicis",kind:"教師",affiliation:"教師・対人心理学／高等結界学",
+    summary:"穏やかな問いで相手自身に答えを選ばせる、柔らかな物腰と冷静な観察眼を持つ教師。",
+    quote:"その選択もいいですね。他には何が思いつきました？",
+    signals:{analytical:3,supportive:3,diplomatic:3,calm:3,strategic:2,social:1},compatibleWith:["guarded","emotional","analytical","ambitious"],traits:["心理観察","対話","穏やか"]
+  },
+  {
+    id:"rune",name:"ルーン・ナイトフォール",dorm:"corvus",kind:"教師",affiliation:"教師・魔法陣構築学／特殊魔法学",
+    summary:"答えを押しつけず、生徒の思考が結論へ至るまで静かに付き合う魔法陣研究者。",
+    quote:"答えを決めるのは俺ではなく、君です。",
+    signals:{analytical:3,research:3,introvert:2,supportive:2,curious:3,detached:2},compatibleWith:["curious","analytical","introvert","independent"],traits:["魔法陣","思考尊重","物静か"]
+  },
+  {
+    id:"aldoa",name:"アルドア・レオネス",dorm:"makina",kind:"教師",affiliation:"教師・肉体強化魔法",
+    summary:"喜怒哀楽も勝負欲も全開。あらゆる問題を殴り合いで解決できると信じる熱血教師。",
+    quote:"いいか、腰抜けにだけはなるんじゃないぞ！",
+    signals:{combat:3,direct:3,active:3,impulsive:3,loyal:2,competitive:3},compatibleWith:["active","competitive","loyal","direct"],traits:["脳筋","負けず嫌い","豪快"]
+  },
+  {
+    id:"valgeir",name:"ヴァルジール・ローゼンフェルト",dorm:"lumiere",kind:"教師",affiliation:"教師・魔法音楽科",
+    summary:"自分自身を作品として磨き続ける世界的オペラ歌手。授業では美と努力に一切妥協しない。",
+    quote:"ここは夢を見る場所ではなく、叶える場所よ。",
+    signals:{artistic:3,performer:3,perfectionist:3,dramatic:2,refined:3,ambitious:2},compatibleWith:["artistic","ambitious","perfectionist","expressive"],traits:["美意識","音楽","完璧主義"]
+  },
+  {
+    id:"raycias",name:"レイシアス・ルクスレイン",dorm:"medicis",kind:"教師",affiliation:"主任治療師・医務室",
+    summary:"命を救うことを最優先し、無茶をする者には静かな威厳で向き合う学院最高峰の治癒術師。",
+    quote:"君が生きたいと願う限り、最後まで支えよう。",
+    signals:{supportive:3,protective:3,disciplined:2,calm:3,refined:2,devoted:2},compatibleWith:["impulsive","guarded","lonely","protective"],traits:["治癒術","慈愛","静かな威厳"]
+  },
+  {
+    id:"balt",name:"バルト・アークライト",dorm:"all",kind:"特殊",affiliation:"学園長・全寮統括",
+    summary:"型破りな悪ノリと底なしの愛情で全生徒の青春を守る、不老不死の最強学園長。",
+    quote:"もっと歪んだこだわりを、その拳に込めてみろ！",
+    signals:{direct:3,active:3,protective:3,charismatic:3,unconventional:3,loyal:3,supportive:2},compatibleWith:["lonely","rebellious","active","loyal"],traits:["最強","型破り","全生徒の親代わり"]
+  },
+  {
+    id:"elwin",name:"エルヴィン・フォン・ジルバーシュタイン",dorm:"makina",kind:"特殊",affiliation:"戦闘術教師・生活指導",
+    summary:"冷静な合理主義者として自分を律する元戦闘狂。分析と鍛錬で、あらゆる弱点を克服してきた。",
+    quote:"戦闘で冷静さを欠くのは、死と同義だ。",
+    signals:{disciplined:3,combat:3,analytical:3,guarded:2,perfectionist:2,direct:2},compatibleWith:["impulsive","competitive","disciplined","combat"],traits:["合理主義","愛刀","元戦闘狂"]
+  },
+  {
+    id:"f",name:"フェルメディーチェ（F）",dorm:"all",kind:"特殊",affiliation:"学園の野良カラス・情報収集家",
+    summary:"退屈を嫌い、落とし物と学院中のスクープを集め歩く、掴みどころのない人型のカラス。",
+    quote:"アラヤダ、大スクープじゃないの。",
+    signals:{social:3,charismatic:2,curious:3,rebellious:2,unconventional:3,opportunistic:3},compatibleWith:["introvert","curious","rebellious","opportunistic"],traits:["情報通","収集癖","自由人"]
+  },
+];
+
 /* ─────────────── 学年 ─────────────── */
 const GRADES = [
   { id:1, label:"1年生", hint:"配属されたばかり。生意気な天才児が集まりトラブルの中心", hook:"寮に振り分けられ地獄の基礎訓練に揉まれる新入生。生意気な天才児が集まるため最もトラブルが多い。先輩への反発や同期との競争がドラマの起点になる立ち位置。" },
@@ -292,6 +508,76 @@ const Divider = ({color="#c4a265"}) => (
   </div>
 );
 
+function buildSignalCounts(answerChoices) {
+  return answerChoices.reduce((counts,choice,questionIndex)=>{
+    const tags = ANSWER_TAGS[questionIndex] && ANSWER_TAGS[questionIndex][choice];
+    (tags || []).forEach(tag=>{ counts[tag]=(counts[tag]||0)+1; });
+    return counts;
+  },{});
+}
+
+function topReasonLabels(entries,counts) {
+  return entries
+    .map(([tag,weight])=>({tag,value:(counts[tag]||0)*weight}))
+    .filter(item=>item.value>0)
+    .sort((a,b)=>b.value-a.value || a.tag.localeCompare(b.tag))
+    .slice(0,3)
+    .map(item=>TAG_LABELS[item.tag] || item.tag);
+}
+
+function buildPersonaMatches(answerChoices,dormScores) {
+  const counts = buildSignalCounts(answerChoices);
+  const maxDorm = Math.max(1,...Object.values(dormScores));
+  const ranked = CHARACTERS.map(profile=>{
+    const signalScore = Object.entries(profile.signals)
+      .reduce((total,[tag,weight])=>total+(counts[tag]||0)*weight,0);
+    const dormFit = profile.dorm==="all" ? 3.5 : ((dormScores[profile.dorm]||0)/maxDorm)*7;
+    return {profile,score:signalScore+dormFit};
+  }).sort((a,b)=>b.score-a.score || a.profile.name.localeCompare(b.profile.name,"ja"));
+
+  const similar = ranked[0].profile;
+  const compatible = CHARACTERS
+    .filter(profile=>profile.id!==similar.id)
+    .map(profile=>{
+      const complement = profile.compatibleWith.reduce((total,tag)=>total+(counts[tag]||0)*2.5,0);
+      const resonance = Object.entries(profile.signals)
+        .reduce((total,[tag,weight])=>total+(counts[tag]||0)*weight*.16,0);
+      const freshPerspective = profile.dorm==="all" || profile.dorm!==similar.dorm ? 1.2 : .4;
+      return {profile,score:complement+resonance+freshPerspective};
+    })
+    .sort((a,b)=>b.score-a.score || a.profile.name.localeCompare(b.profile.name,"ja"))[0].profile;
+
+  const similarityReasons = topReasonLabels(Object.entries(similar.signals),counts);
+  const compatibilityReasons = topReasonLabels(compatible.compatibleWith.map(tag=>[tag,1]),counts);
+  return {similar,compatible,similarityReasons,compatibilityReasons,counts};
+}
+
+function PersonaCard({label,profile,reasons,mode}) {
+  const dorm = profile.dorm==="all" ? null : DORMS[profile.dorm];
+  const accent = dorm ? dorm.accent : "#d6b86f";
+  const border = dorm ? dorm.color : "#8f7335";
+  const reasonText = reasons.length ? reasons.join("・") : "回答全体のバランス";
+  return (
+    <article className="persona-card" style={{padding:"18px 17px",border:`1px solid ${border}66`,borderRadius:8,
+      background:`linear-gradient(145deg,${border}1c,rgba(255,255,255,0.025))`,display:"flex",flexDirection:"column"}}>
+      <div style={{fontSize:11,color:accent,marginBottom:8}}>{label}</div>
+      <h3 style={{fontSize:19,lineHeight:1.45,color:"#f3ead4",marginBottom:4,overflowWrap:"anywhere"}}>{profile.name}</h3>
+      <div style={{fontSize:11,color:"#8a7d6b",lineHeight:1.6,marginBottom:12}}>{profile.affiliation}</div>
+      <p style={{fontSize:13,color:"#c4b89a",lineHeight:1.8,marginBottom:12}}>{profile.summary}</p>
+      <p style={{fontSize:12,color:"#9e907b",lineHeight:1.7,fontStyle:"italic",marginBottom:13}}>「{profile.quote}」</p>
+      <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:13}}>
+        {profile.traits.map(trait=>(
+          <span key={trait} style={{padding:"4px 9px",fontSize:10,color:accent,border:`1px solid ${border}55`,borderRadius:6,background:`${border}18`}}>{trait}</span>
+        ))}
+      </div>
+      <div style={{marginTop:"auto",paddingTop:11,borderTop:"1px solid rgba(255,255,255,0.07)",fontSize:11,lineHeight:1.65,color:"#7f7463"}}>
+        {mode==="similar" ? "回答に強く表れた気質" : "相性を結ぶ気質"}<br/>
+        <span style={{color:accent}}>{reasonText}</span>
+      </div>
+    </article>
+  );
+}
+
 /* ─────────────── キャラ生成 ─────────────── */
 function buildCharacter(primary, secondary, flags, grade) {
   const k = KIT[primary];
@@ -335,6 +621,8 @@ function App() {
   const [sorted,setSorted] = useState(null);
   const [grade,setGrade] = useState(2);
   const [character,setCharacter] = useState(null);
+  const [answerChoices,setAnswerChoices] = useState([]);
+  const [persona,setPersona] = useState(null);
   const [showScore,setShowScore] = useState(false);
 
   const transition = (fn,delay=450)=>{ setFade("out"); setTimeout(()=>{fn();setFade("in");},delay); };
@@ -353,6 +641,7 @@ function App() {
   const answer = (opt,idx)=>{
     if(selected!==null) return;
     setSelected(idx);
+    const nextChoices=[...answerChoices]; nextChoices[current]=idx; setAnswerChoices(nextChoices);
     const ns={...scores}; Object.entries(opt.s||{}).forEach(([k,v])=>ns[k]+=v); setScores(ns);
     const nf={...flags}; if(opt.f) Object.entries(opt.f).forEach(([k,v])=>nf[k]=v); setFlags(nf);
     setTimeout(()=>{
@@ -360,6 +649,7 @@ function App() {
         transition(()=>{setCurrent(c=>c+1);setSelected(null);},380);
       } else {
         const arr=Object.entries(ns).sort((a,b)=>b[1]-a[1]); setSorted(arr);
+        setPersona(buildPersonaMatches(nextChoices,ns));
         transition(()=>{setPhase("grade");setSelected(null);},550);
       }
     },520);
@@ -372,7 +662,7 @@ function App() {
   const reroll = ()=> setCharacter(buildCharacter(sorted[0][0],sorted[1][0],flags,grade));
   const reset = ()=>transition(()=>{
     setPhase("intro");setCurrent(0);setScores({makina:0,corvus:0,medicis:0,lumiere:0});
-    setFlags({});setSelected(null);setSorted(null);setGrade(2);setCharacter(null);setShowScore(false);
+    setFlags({});setSelected(null);setSorted(null);setGrade(2);setCharacter(null);setAnswerChoices([]);setPersona(null);setShowScore(false);
   },500);
 
   const D = sorted ? DORMS[sorted[0][0]] : null;
@@ -410,11 +700,11 @@ function App() {
             <h1 style={{fontSize:29,fontWeight:900,lineHeight:1.4,marginBottom:6,
               background:"linear-gradient(180deg,#f3ead4,#c4a265)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>
               レガリア王立魔術学院</h1>
-            <h2 style={{fontSize:16,fontWeight:400,color:"#b8a88a",marginBottom:4}}>寮分け＆キャラクター生成診断</h2>
+            <h2 style={{fontSize:16,fontWeight:400,color:"#b8a88a",marginBottom:4}}>寮分け＆人物共鳴診断</h2>
             <Divider />
             <p style={{fontSize:14,lineHeight:2,color:"#a89b87",maxWidth:500,margin:"0 auto 8px"}}>
               あなたが創ろうとしているキャラクターは、<br/>武力・知識・政治・芸術──どの思想を宿すのか。</p>
-            <p style={{fontSize:13,color:"#7a6f60",marginBottom:30}}>全18問に答えると、所属寮を判定し、<br/>キャラクター設定の「スターターキット」を生成します。</p>
+            <p style={{fontSize:13,color:"#7a6f60",lineHeight:1.8,marginBottom:30}}>全18問から所属寮と人物適性を読み解き、<br/>学院の28人物から「近い人物」と「相性の良い人物」を導きます。<br/>最後にキャラクター設定のスターターキットも生成します。</p>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,maxWidth:440,margin:"0 auto 34px"}}>
               {Object.values(DORMS).map((d,i)=>(
                 <div key={i} style={{padding:"14px 12px",border:`1px solid ${d.color}55`,borderRadius:8,
@@ -505,6 +795,20 @@ function App() {
               <p style={{fontSize:14,lineHeight:2,color:"#c4b89a",textAlign:"left",marginBottom:8,animation:"fadeIn .8s ease .55s both"}}>{D.desc}</p>
             </div>
 
+            {persona && (
+              <section style={{marginTop:12,animation:"slideUp .6s ease .6s both"}}>
+                <Divider color={D.color} />
+                <div className="cinzel" style={{textAlign:"center",fontSize:12,color:D.accent,marginBottom:7}}>PERSONA RESONANCE</div>
+                <p style={{textAlign:"center",fontSize:12,color:"#7a6f60",lineHeight:1.7,marginBottom:16}}>
+                  同じ答えから、「似ている人物」と「関係が育ちやすい人物」を別々に判定しました。
+                </p>
+                <div className="persona-grid">
+                  <PersonaCard label="あなたに最も近い人物" profile={persona.similar} reasons={persona.similarityReasons} mode="similar" />
+                  <PersonaCard label="あなたと相性の良い人物" profile={persona.compatible} reasons={persona.compatibilityReasons} mode="compatible" />
+                </div>
+              </section>
+            )}
+
             <div style={{marginTop:10,animation:"slideUp .6s ease .6s both"}}>
               <Divider color={D.color} />
               <div className="cinzel" style={{textAlign:"center",fontSize:12,letterSpacing:3,color:D.accent,marginBottom:14}}>CHARACTER STARTER KIT</div>
@@ -569,11 +873,11 @@ function App() {
             </div>
 
             <div style={{display:"flex",gap:12,justifyContent:"center",flexWrap:"wrap",marginTop:16}}>
-              <button onClick={reroll} style={{padding:"13px 26px",fontSize:14,fontWeight:700,color:D.accent,background:"transparent",border:`1px solid ${D.accent}99`,borderRadius:6,letterSpacing:1}}>🎲 別のキャラ案を生成</button>
+              <button onClick={reroll} style={{padding:"13px 26px",fontSize:14,fontWeight:700,color:D.accent,background:"transparent",border:`1px solid ${D.accent}99`,borderRadius:6,letterSpacing:1}}>スターターキットを再生成</button>
               <button onClick={reset} style={{padding:"13px 26px",fontSize:14,fontWeight:700,color:"#0a0a12",background:`linear-gradient(135deg,${D.accent},${D.color})`,border:"none",borderRadius:6,letterSpacing:1}}>最初から診断</button>
             </div>
             <p style={{textAlign:"center",fontSize:11,color:"#5a5244",marginTop:22,lineHeight:1.7}}>
-              生成された設定はあくまで「種」です。<br/>気に入った要素を拾い、自由にアレンジしてキャラを育ててください。
+              人物診断は回答に表れた気質をもとにした創作上の指針です。<br/>気に入った要素を拾い、自由にキャラを育ててください。
             </p>
           </div>
         )}
