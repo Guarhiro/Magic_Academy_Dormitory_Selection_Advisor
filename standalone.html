@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>レガリア王立魔術学院 ― 寮分け＆人物共鳴診断</title>
-<meta name="description" content="所属寮、性格が近い人物、相性の良い人物を診断し、キャラクター設定のスターターキットを生成します。" />
+<meta name="description" content="18問からあなたの所属寮、性格傾向、近い人物、相性の良い人物を診断します。" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Noto+Serif+JP:wght@400;500;700;900&display=swap" rel="stylesheet" />
@@ -27,6 +27,7 @@
   .persona-card { min-width: 0; }
   @media (max-width: 620px) {
     .persona-grid { grid-template-columns: 1fr; }
+    .insight-grid { grid-template-columns: 1fr !important; }
   }
   ::-webkit-scrollbar { width: 8px; }
   ::-webkit-scrollbar-track { background: #07060c; }
@@ -82,7 +83,7 @@ const DORMS = {
 /* ─────────────── 質問（18問） ─────────────── */
 const Q = (question, options) => ({ question, options });
 const QUESTIONS = [
-  Q("そのキャラが一番大切にしているものは？", [
+  Q("あなたが一番大切にしているものは？", [
     { t:"守りたい仲間・大切な人", s:{makina:3,medicis:1,lumiere:1} },
     { t:"まだ誰も知らない「真理」", s:{corvus:3,medicis:1} },
     { t:"自分の社会的立場と信頼", s:{medicis:3,lumiere:1} },
@@ -90,23 +91,23 @@ const QUESTIONS = [
   ]),
   Q("自由時間の過ごし方で一番近いのは？", [
     { t:"武器の手入れ、筋トレ、模擬戦", s:{makina:3} },
-    { t:"禁書庫や実験室に籠もって研究", s:{corvus:3}, f:{chrono:"night",social:"introvert"} },
-    { t:"サロンでお茶をしながら人脈と情報収集", s:{medicis:3,lumiere:1}, f:{social:"extrovert"} },
+    { t:"禁書庫や実験室に籠もって研究", s:{corvus:3} },
+    { t:"サロンでお茶をしながら人脈と情報収集", s:{medicis:3,lumiere:1} },
     { t:"作曲、スケッチ、舞台の稽古", s:{lumiere:3,corvus:1} },
   ]),
   Q("他寮の生徒に喧嘩を売られた。どう反応する？", [
-    { t:"「上等だ、表出ろ」即・臨戦態勢", s:{makina:3,lumiere:1}, f:{social:"extrovert"} },
-    { t:"「…興味ない」と無視。後で弱点を調べ上げる", s:{corvus:3,medicis:1}, f:{social:"introvert"} },
+    { t:"「上等だ、表出ろ」即・臨戦態勢", s:{makina:3,lumiere:1} },
+    { t:"「…興味ない」と無視。後で弱点を調べ上げる", s:{corvus:3,medicis:1} },
     { t:"微笑んで穏便に収め、裏で報復の手を打つ", s:{medicis:3} },
     { t:"「センスのない挑発ね」と笑い飛ばし注目を集める", s:{lumiere:3} },
   ]),
-  Q("そのキャラの「致命的な弱点」に一番近いのは？", [
+  Q("あなたの「致命的な弱点」に一番近いのは？", [
     { t:"考えるより先に体が動く。罠にはまりやすい", s:{makina:3,lumiere:1} },
     { t:"他人の感情が理解できない。孤立しがち", s:{corvus:3} },
     { t:"本心を見せられない。誰も本当には信用しない", s:{medicis:3,corvus:1} },
     { t:"感情に振り回される。好き嫌いで判断が歪む", s:{lumiere:3,makina:1} },
   ]),
-  Q("キャラの魔法を最も強くする「感情」は？", [
+  Q("もし魔法を使うなら、あなたを最も強くする「感情」は？", [
     { t:"怒り──仲間を傷つけた奴への激情", s:{makina:3,lumiere:1} },
     { t:"執着──未知の謎を解き明かしたい渇望", s:{corvus:3} },
     { t:"矜持──自分は負けるはずがないという確信", s:{medicis:3,makina:1} },
@@ -125,28 +126,28 @@ const QUESTIONS = [
     { t:"人の心を鷲掴みにする、伝説のパフォーマー", s:{lumiere:3} },
   ]),
   Q("恋愛に対するスタンスは？", [
-    { t:"恋愛は苦手。好きな人の前だと急に不器用に", s:{makina:3,corvus:1}, f:{romance:"awkward"} },
-    { t:"恋愛より研究。感情は非効率", s:{corvus:3}, f:{romance:"uninterested"} },
-    { t:"恋愛も「戦略」。感情と利害を天秤にかける", s:{medicis:3}, f:{romance:"calculating"} },
-    { t:"全力で恋して全力で傷つく。恋は人生のメイン", s:{lumiere:3}, f:{romance:"passionate"} },
+    { t:"恋愛は苦手。好きな人の前だと急に不器用に", s:{makina:3,corvus:1} },
+    { t:"恋愛より研究。感情は非効率", s:{corvus:3} },
+    { t:"恋愛も「戦略」。感情と利害を天秤にかける", s:{medicis:3} },
+    { t:"全力で恋して全力で傷つく。恋は人生のメイン", s:{lumiere:3} },
   ]),
   Q("パーティー（宴会）での立ち位置は？", [
-    { t:"気づいたら一気飲み対決の中心にいる", s:{makina:3,lumiere:1}, f:{social:"extrovert"} },
-    { t:"壁際で人間観察。もしくは来ない", s:{corvus:3}, f:{social:"introvert"} },
+    { t:"気づいたら一気飲み対決の中心にいる", s:{makina:3,lumiere:1} },
+    { t:"壁際で人間観察。もしくは来ない", s:{corvus:3} },
     { t:"主催側で仕切る。全員の名前と派閥を把握済み", s:{medicis:3} },
-    { t:"ステージ中央。全員の視線を独占する", s:{lumiere:3}, f:{social:"extrovert"} },
+    { t:"ステージ中央。全員の視線を独占する", s:{lumiere:3} },
   ]),
   Q("朝型？夜型？", [
-    { t:"夜明けと共に起きて鍛錬。完全朝型", s:{makina:2,medicis:1}, f:{chrono:"morning"} },
-    { t:"夜になると目がバキバキに冴える。深夜が本番", s:{corvus:3}, f:{chrono:"night"} },
-    { t:"時間に縛られない。気分次第", s:{lumiere:2}, f:{chrono:"irregular"} },
-    { t:"規則正しい生活が信条。自己管理は完璧", s:{medicis:2}, f:{chrono:"morning"} },
+    { t:"夜明けと共に起きて鍛錬。完全朝型", s:{makina:2,medicis:1} },
+    { t:"夜になると目がバキバキに冴える。深夜が本番", s:{corvus:3} },
+    { t:"時間に縛られない。気分次第", s:{lumiere:2} },
+    { t:"規則正しい生活が信条。自己管理は完璧", s:{medicis:2} },
   ]),
   Q("一人称と話し方の傾向は？", [
-    { t:"「俺/あたし」系。ぶっきらぼうで熱い", s:{makina:3}, f:{speech:"hot"} },
-    { t:"「私/僕」系。淡々として理屈っぽい", s:{corvus:3}, f:{speech:"flat"} },
-    { t:"「わたくし/私」系。丁寧で品がある", s:{medicis:3}, f:{speech:"refined"} },
-    { t:"独特な口癖や愛称。芝居がかっている", s:{lumiere:3}, f:{speech:"dramatic"} },
+    { t:"「俺/あたし」系。ぶっきらぼうで熱い", s:{makina:3} },
+    { t:"「私/僕」系。淡々として理屈っぽい", s:{corvus:3} },
+    { t:"「わたくし/私」系。丁寧で品がある", s:{medicis:3} },
+    { t:"独特な口癖や愛称。芝居がかっている", s:{lumiere:3} },
   ]),
   Q("窮地に陥ったときの判断は？", [
     { t:"勢いで突破。考えるのは後", s:{makina:3} },
@@ -160,7 +161,7 @@ const QUESTIONS = [
     { t:"完璧で、誰からも信頼される存在", s:{medicis:3} },
     { t:"忘れられない、特別な存在", s:{lumiere:3} },
   ]),
-  Q("そのキャラの「生い立ち」に近いのは？", [
+  Q("あなたのこれまでに一番近いのは？", [
     { t:"武門の家系、または叩き上げの苦労人", s:{makina:3} },
     { t:"孤独な幼少期。本だけが友達だった", s:{corvus:3} },
     { t:"名門貴族の家。期待と重圧の中で育った", s:{medicis:3} },
@@ -174,9 +175,9 @@ const QUESTIONS = [
   ]),
   Q("放課後、その子がふと足を向ける場所は？", [
     { t:"火の絶えない暖炉の前か、油まみれの地下工房", s:{makina:3} },
-    { t:"寮の最上階・夜天の天文台か、結界付きの実験室", s:{corvus:3}, f:{chrono:"night"} },
+    { t:"寮の最上階・夜天の天文台か、結界付きの実験室", s:{corvus:3} },
     { t:"噂話の飛び交うサンルームか、毒草も育つ温室", s:{medicis:3} },
-    { t:"スポットライトの当たるサロンか、鏡張りのドレスルーム", s:{lumiere:3}, f:{social:"extrovert"} },
+    { t:"スポットライトの当たるサロンか、鏡張りのドレスルーム", s:{lumiere:3} },
   ]),
   Q("他寮の生徒が、自分には到底できない方法で大成功を収めた。どう思う？", [
     { t:"「すげぇ！今度やり方教えてくれ！」と素直に賞賛", s:{makina:3} },
@@ -184,7 +185,7 @@ const QUESTIONS = [
     { t:"「お見事」と微笑みつつ、その手法を自分の利益に取り込む算段", s:{medicis:3} },
     { t:"「なんて美しいの」と感動し、本人を口説きにかかる", s:{lumiere:3} },
   ]),
-  Q("最後の問い──そのキャラが「死んでも手放さないもの」は？", [
+  Q("最後の問い──あなたが「何があっても手放さないもの」は？", [
     { t:"背中を預けた相棒との絆", s:{makina:3,lumiere:1} },
     { t:"生涯をかけた、たった一つの問い", s:{corvus:3,lumiere:1} },
     { t:"血と努力で積み上げた地位と名声", s:{medicis:3} },
@@ -403,87 +404,66 @@ const CHARACTERS = [
   },
 ];
 
-/* ─────────────── 学年 ─────────────── */
-const GRADES = [
-  { id:1, label:"1年生", hint:"配属されたばかり。生意気な天才児が集まりトラブルの中心", hook:"寮に振り分けられ地獄の基礎訓練に揉まれる新入生。生意気な天才児が集まるため最もトラブルが多い。先輩への反発や同期との競争がドラマの起点になる立ち位置。" },
-  { id:2, label:"2年生", hint:"スタイルが固まり寮対抗戦で大暴れ。恋愛とイベントを一番エンジョイ", hook:"魔法のスタイルが固まり、寮対抗戦で大暴れする最盛期。恋愛もイベントも一番エンジョイする世代で、物語の華となる主役向きのポジション。" },
-  { id:3, label:"3年生", hint:"監督生や生徒会で後輩をまとめる。進路に悩み、学外実習も本格化", hook:"監督生・生徒会として後輩を束ねる立場。進路に悩み始め、学外での実習も本格化する。理想と責任の板挟み、リーダーとしての葛藤が描けるポジション。" },
-  { id:4, label:"4年生", hint:"進路内定済みで授業はほぼ免除。普段は好き勝手に生きている", hook:"進路内定済みで授業はほぼ免除、好き勝手に生きる最上級生。達観と余裕、気まぐれを備え、後輩から見れば「伝説の先輩」。掴みどころのなさが魅力になる。" },
+const PLAYER_ARCHETYPES = [
+  {
+    id:"guardian",title:"守ることで強くなる守護者",
+    tags:["loyal","protective","devoted","supportive","generous","romantic","awkward"],
+    summary:"大切な人や居場所があると、普段以上の力を発揮するタイプです。判断の中心には、いつも誰かとの絆があります。",
+    strength:"信頼した相手を簡単には見捨てず、困難な場面でも最後まで支え続けられます。",
+    caution:"自分の負担を後回しにしやすく、守ることと抱え込むことの境目を見失う場合があります。",
+    nuance:"人との絆を、行動を決める確かな理由にします。"
+  },
+  {
+    id:"seeker",title:"答えを追い続ける探究者",
+    tags:["curious","truth","research","analytical","obsessive","forbidden","lab","nocturnal"],
+    summary:"分からないままにしておくことが苦手で、納得できる答えへ辿り着くまで考え続けるタイプです。",
+    strength:"表面的な説明に流されず、複雑な問題から本質や見落とされた法則を見つけられます。",
+    caution:"ひとつの問いへ集中しすぎると、周囲の感情や自分の生活を後回しにしがちです。",
+    nuance:"未知や矛盾に出会うほど、思考の速度が上がります。"
+  },
+  {
+    id:"architect",title:"理想を現実に変える設計者",
+    tags:["ambitious","status","strategic","organizer","diplomatic","perfectionist","disciplined","noble","controlling","proud"],
+    summary:"目標から逆算して行動し、人や状況を整えながら結果へ近づくタイプです。理想に対して妥協しません。",
+    strength:"長期的な見通しと自己管理力があり、混乱した場でも順序を作って前へ進められます。",
+    caution:"正しさや完成度を求めるあまり、自分にも他人にも厳しくなりすぎることがあります。",
+    nuance:"曖昧な願いを、実行できる形へ組み直します。"
+  },
+  {
+    id:"artist",title:"世界を自分の色に染める表現者",
+    tags:["artistic","legacy","creative","charismatic","dramatic","performer","expressive","stage","memorable","admiring","illusion"],
+    summary:"感じたものを自分だけの形で表し、人の心を動かすことに喜びを見いだすタイプです。",
+    strength:"独自の感性と伝える力があり、何気ない場面にも意味や美しさを与えられます。",
+    caution:"反応や評価が得られない時、自分の価値まで否定されたように感じやすい面があります。",
+    nuance:"言葉や表現を通して、場の空気そのものを変えます。"
+  },
+  {
+    id:"vanguard",title:"迷うより先に道を開く突破者",
+    tags:["active","combat","direct","impulsive","competitive","martial","destructive","blunt","morning"],
+    summary:"考え込むよりまず動き、正面から状況を変えていくタイプです。競争や逆境があるほど燃えます。",
+    strength:"決断が速く、誰も動けない局面で最初の一歩を踏み出して流れを作れます。",
+    caution:"勢いが強いぶん、相手の準備や気持ちを確認する前に結論へ走ることがあります。",
+    nuance:"停滞した状況に、最初の一撃を入れる役目です。"
+  },
+  {
+    id:"independent",title:"自分の輪郭を守る独立者",
+    tags:["introvert","guarded","detached","independent","rebellious","irregular","unconventional","lonely","calm"],
+    summary:"周囲に流されず、自分のペースと価値観を大切にするタイプです。ひとりで考える時間から力を得ます。",
+    strength:"同調圧力の中でも違和感を見失わず、自分なりの判断を静かに貫けます。",
+    caution:"傷つかないために距離を取りすぎると、助けを求める機会まで逃してしまうことがあります。",
+    nuance:"近さよりも、互いの境界を尊重できる関係を選びます。"
+  },
+  {
+    id:"connector",title:"人と場を動かす交感者",
+    tags:["social","extrovert","refined","opportunistic","flexible","emotional"],
+    summary:"人の反応や場の空気を敏感に読み、関係をつなぎながら状況を動かすタイプです。",
+    strength:"相手に合わせた距離感を作り、異なる立場の人同士にも共通点を見つけられます。",
+    caution:"周囲へ意識を向けすぎると、自分が本当は何を望んでいるのか見えにくくなります。",
+    nuance:"ひとりでは生まれない流れを、人と人の間に作ります。"
+  },
 ];
 
-/* ─────────────── キャラ生成プール ─────────────── */
-const KIT = {
-  makina: {
-    archetype:["熱血の前衛剣士","仲間を鼓舞するムードメーカー","不器用な番長肌","負けず嫌いのライバルキャラ","武器マニアのカスタムオタク"],
-    strength:["仲間のためなら一切迷わない","逆境ほど燃える折れない心","場の空気を一瞬で熱くする","誰よりも速く動く反射神経"],
-    flaw:["猪突猛進で罠にハマる","勉強と細かい作業が壊滅的","熱くなると周りが見えない","素直になれず喧嘩腰になる"],
-    magic:[
-      {school:"剛撃・身体強化系", trigger:"「守りたい」と強く願った瞬間に出力が跳ね上がる"},
-      {school:"武器具現・魔導兵装系", trigger:"愛用武器への執着と高揚が威力に直結する"},
-      {school:"炎・爆発系", trigger:"怒りが頂点に達すると制御を超えた火力を放つ"},
-    ],
-    visual:["短髪・包帯・無骨な防具、戦う気満々の眼光","傷だらけのカスタム魔導武器を背負った立ち姿","汗と土埃、ゴールデンアワーの逆光を背に振り向くPOV構図"],
-    haunt:["24時間火が絶えないメインラウンジの暖炉前","油の匂いが染みついた地下大工房","サンドバッグの揺れる鍛錬室","肉料理が山積みのグレートホール"],
-  },
-  corvus: {
-    archetype:["夜型の天才研究者","禁術を追う狂気の探求者","何を考えているか読めない無口な奇人","収集癖のある知識の魔人","世界の真理に取り憑かれた変わり者"],
-    strength:["常人には見えない法則を見抜く","目的のためなら徹夜も厭わない集中力","常識に縛られない発想","膨大な知識量"],
-    flaw:["他人の感情を理解できず孤立する","研究以外に無関心で生活力ゼロ","倫理の境界が曖昧","説明が長く回りくどい"],
-    magic:[
-      {school:"闇魔法・呪術系", trigger:"知的好奇心が満たされる瞬間に深淵が応える"},
-      {school:"召喚・異界接続系", trigger:"夜の静寂と孤独が触媒となり異形を呼ぶ"},
-      {school:"古代魔術・ロストテクノロジー系", trigger:"未知の解析に没頭するほど精度が上がる"},
-    ],
-    visual:["隈のある目、フード付きローブ、本や試験管に囲まれた研究室","月光の下、片目だけ妖しく光る不気味な微笑み","埃の舞う禁書庫で頁をめくる横顔のPOV"],
-    haunt:["寮の最上階・夜天の天文台","結界の張られた禁忌の特殊実験室","禁書が眠るライブラリウム・ノクス","夜に植物が輝く錬金庭園"],
-  },
-  medicis: {
-    archetype:["完璧な微笑みの貴公子/令嬢","裏で糸を引く策士","聖人を演じる野心家","冷徹なエリート治癒師","政略に長けた次期当主"],
-    strength:["どんな相手も懐柔する交渉力","完璧な自己管理と気品","状況を俯瞰する政治感覚","傷をたちどころに癒す治癒術"],
-    flaw:["本心を誰にも見せない孤独","手段を選ばない冷酷さ","完璧主義ゆえの脆さ","人を駒として見てしまう"],
-    magic:[
-      {school:"光・治癒系", trigger:"「慈悲」と「支配」が一致したとき真価を発揮する"},
-      {school:"結界・封印系", trigger:"絶対的な自信と矜持が鉄壁を生む"},
-      {school:"精神干渉・契約魔術系", trigger:"相手の弱みを掌握した瞬間に効力が増す"},
-    ],
-    visual:["白を基調とした完璧な制服、計算された慈愛の微笑み","シャンデリアの下、エメラルドのサロンで優雅に佇む姿","差し伸べた手に光が宿る治癒のPOV、だが瞳は笑っていない"],
-    haunt:["白とエメラルドの談話室（裏では情報戦）","薬草と毒草が同居する大白精霊の温室","宮廷料理が並ぶ食堂","噴水を望む白亜のサンルーム"],
-  },
-  lumiere: {
-    archetype:["天才肌のカリスマ芸術家","恋多きトラブルメーカー","常識外れの自由人","人を魅了する精神魔法の使い手","美学に殉じるナルシスト"],
-    strength:["人の心を一瞬で掴むカリスマ","唯一無二の感性と表現力","恐れを知らない自由奔放さ","場を祭りに変える熱量"],
-    flaw:["感情の起伏が激しく不安定","興味がないと一切動かない","美しくないものを切り捨てる","恋に溺れて我を忘れる"],
-    magic:[
-      {school:"幻術・魅了系", trigger:"自分の作品や美が認められた高揚が力に変わる"},
-      {school:"音・色彩・芸術魔法系", trigger:"感情が最高潮に達した瞬間に世界を塗り替える"},
-      {school:"精神共鳴・感染系", trigger:"強烈な恋情や憧憬がそのまま魔力の波となる"},
-    ],
-    visual:["改造制服を映えるように着崩した美男美女","スポットライトを浴びる中央グランドステージの中央","花びらと光の渦、こちらを誘う蠱惑的なPOV"],
-    haunt:["スポットライト降り注ぐサロン・ド・ルミエル","公演の行われる中央グランドステージ","360度鏡張りの大鏡のドレスルーム","星降るルーフトップガーデン"],
-  },
-};
-
-const SPEECH = {
-  hot:{p:"俺 / あたし", line:"「うるせえ、御託はいい。仲間に手ぇ出すなら、俺がぶっ潰す」"},
-  flat:{p:"私 / 僕", line:"「…なるほど。実に興味深い。君、もう少しそこで動かないでくれるか。観察したい」"},
-  refined:{p:"わたくし / 私", line:"「ふふ、お怪我を？ どうぞこちらへ。……ええ、すべて わたくしにお任せください」"},
-  dramatic:{p:"独特（ボク・ワタシ等＋愛称）", line:"「あぁ、なんて美しい夜！ ねえキミ、私の舞台に上がってみない？」"},
-  makina:{p:"俺 / あたし", line:"「やってやるよ。退くのだけは性に合わねえんだ」"},
-  corvus:{p:"私 / 僕", line:"「その問いの答え、まだ誰も知らない。だから私が解く。それだけだ」"},
-  medicis:{p:"わたくし / 私", line:"「大丈夫、すべて丸く収まりますわ。……わたくしの掌の上で、ね」"},
-  lumiere:{p:"独特（愛称多用）", line:"「退屈は罪よ。さあ、今日も世界を私の色に染めましょう？」"},
-};
-
-const RIVALRY = {
-  makina:{ corvus:"理屈っぽいコルウス寮生に「考えすぎだ」と突っかかるが、いざという時の知略には密かに頼っている。", medicis:"お上品なメディシス寮の建前が気に食わず突っかかる。だが怪我の治療では世話になる腐れ縁。", lumiere:"ノリの良さでルミエール寮と意気投合。お祭り騒ぎの共犯者になりがち。" },
-  corvus:{ makina:"脳筋なマキナ寮を「非効率」と見下しつつ、その純粋な熱さに分析対象以上の何かを感じ始める。", medicis:"情報を巡ってメディシス寮と腹の探り合い。利害が一致すれば最強のタッグ。", lumiere:"感性だけで大魔法を成功させるルミエール寮を見て「数式がバグる！なぜだ!?」と論文を書いて頭を抱える宿敵。" },
-  medicis:{ makina:"単純なマキナ寮を「使いやすい駒」と内心評価しつつ、その裏表のなさに毒気を抜かれる。", corvus:"危険なコルウス寮の知識（特に毒草の知見）を欲して近づく。互いに利用し合う危うい関係。", lumiere:"派手なルミエール寮を表向き嗜めつつ、その影響力を政治利用しようと画策。" },
-  lumiere:{ makina:"熱血なマキナ寮を「最高のミューズ」と気に入り、舞台に引っ張り出して振り回す。", corvus:"陰気なコルウス寮にこそ「隠れた美」を見出し、無理やりスポットライトの下へ。理解不能な天敵でもある。", medicis:"完璧なメディシス寮の仮面を「つまらない」と剥がしにかかる天敵。" },
-};
-
 /* ─────────────── ユーティリティ ─────────────── */
-const pick = (arr) => arr[Math.floor(Math.random()*arr.length)];
-
 const StarField = () => {
   const stars = useMemo(()=>Array.from({length:70},(_,i)=>({
     id:i,x:Math.random()*100,y:Math.random()*100,
@@ -525,6 +505,26 @@ function topReasonLabels(entries,counts) {
     .map(item=>TAG_LABELS[item.tag] || item.tag);
 }
 
+function buildPlayerProfile(counts) {
+  const rankedArchetypes = PLAYER_ARCHETYPES.map(archetype=>({
+    archetype,
+    score:archetype.tags.reduce((total,tag)=>total+(counts[tag]||0),0),
+  })).sort((a,b)=>b.score-a.score || a.archetype.id.localeCompare(b.archetype.id));
+  const primary = rankedArchetypes[0].archetype;
+  const secondary = rankedArchetypes[1].archetype;
+  const traits = Object.entries(counts)
+    .sort((a,b)=>b[1]-a[1] || a[0].localeCompare(b[0]))
+    .slice(0,5)
+    .map(([tag])=>TAG_LABELS[tag] || tag);
+  return {
+    title:primary.title,
+    summary:`${primary.summary} ${secondary.nuance}`,
+    strength:primary.strength,
+    caution:primary.caution,
+    traits,
+  };
+}
+
 function buildPersonaMatches(answerChoices,dormScores) {
   const counts = buildSignalCounts(answerChoices);
   const maxDorm = Math.max(1,...Object.values(dormScores));
@@ -549,7 +549,34 @@ function buildPersonaMatches(answerChoices,dormScores) {
 
   const similarityReasons = topReasonLabels(Object.entries(similar.signals),counts);
   const compatibilityReasons = topReasonLabels(compatible.compatibleWith.map(tag=>[tag,1]),counts);
-  return {similar,compatible,similarityReasons,compatibilityReasons,counts};
+  const playerProfile = buildPlayerProfile(counts);
+  return {similar,compatible,similarityReasons,compatibilityReasons,playerProfile,counts};
+}
+
+function PlayerProfile({profile,accent,border}) {
+  return (
+    <section style={{marginTop:12,animation:"slideUp .6s ease .6s both"}}>
+      <Divider color={border} />
+      <div className="cinzel" style={{textAlign:"center",fontSize:12,color:accent,marginBottom:7}}>YOUR PROFILE</div>
+      <h2 style={{textAlign:"center",fontSize:21,lineHeight:1.6,color:"#f3ead4",marginBottom:9}}>{profile.title}</h2>
+      <p style={{fontSize:13,lineHeight:1.9,color:"#c4b89a",textAlign:"center",maxWidth:570,margin:"0 auto 16px"}}>{profile.summary}</p>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(2,minmax(0,1fr))",gap:10,marginBottom:13}} className="insight-grid">
+        <div style={{padding:"14px 15px",background:"rgba(255,255,255,0.025)",borderLeft:`2px solid ${border}aa`,borderRadius:"0 6px 6px 0"}}>
+          <div style={{fontSize:11,color:accent,marginBottom:6}}>あなたの強み</div>
+          <p style={{fontSize:13,lineHeight:1.8,color:"#d8ccb4"}}>{profile.strength}</p>
+        </div>
+        <div style={{padding:"14px 15px",background:"rgba(255,255,255,0.025)",borderLeft:`2px solid ${border}66`,borderRadius:"0 6px 6px 0"}}>
+          <div style={{fontSize:11,color:accent,marginBottom:6}}>つまずきやすい点</div>
+          <p style={{fontSize:13,lineHeight:1.8,color:"#d8ccb4"}}>{profile.caution}</p>
+        </div>
+      </div>
+      <div style={{display:"flex",flexWrap:"wrap",gap:7,justifyContent:"center"}}>
+        {profile.traits.map(trait=>(
+          <span key={trait} style={{padding:"5px 11px",fontSize:11,color:accent,background:`${border}1e`,border:`1px solid ${border}44`,borderRadius:6}}>{trait}</span>
+        ))}
+      </div>
+    </section>
+  );
 }
 
 function PersonaCard({label,profile,reasons,mode}) {
@@ -578,49 +605,14 @@ function PersonaCard({label,profile,reasons,mode}) {
   );
 }
 
-/* ─────────────── キャラ生成 ─────────────── */
-function buildCharacter(primary, secondary, flags, grade) {
-  const k = KIT[primary];
-  const speechKey = flags.speech && SPEECH[flags.speech] ? flags.speech : primary;
-  const sp = SPEECH[speechKey];
-  const m = pick(k.magic);
-  const gradeObj = GRADES.find(g=>g.id===grade) || GRADES[1];
-  const rivalry = RIVALRY[primary][secondary] || "";
-  const hybrid = secondary && secondary!==primary
-    ? `${DORMS[primary].name}を軸にしつつ、${DORMS[secondary].name}の気質（${DORMS[secondary].traits[0]}・${DORMS[secondary].traits[1]}）も併せ持つ二面性が個性になる。`
-    : `${DORMS[primary].name}の気質が極端に振り切れた、寮の象徴のような純粋なキャラ。`;
-  const social = flags.social==="introvert" ? "人付き合いは狭く深く。基本は単独行動だが、心を許した相手には脆い一面を見せる。"
-    : flags.social==="extrovert" ? "誰とでもすぐ打ち解ける。常に人の輪の中心にいるタイプ。" : "";
-  const romance = ({
-    awkward:"恋愛になると途端にポンコツ化。好きな人の前で挙動不審になるギャップが萌え要素。",
-    uninterested:"恋愛に一切興味がない。だからこそ落ちたときの破壊力が物語になる。",
-    calculating:"恋愛すら戦略の一部として計算する。だが本物の感情に出会ったとき仮面が崩れる。",
-    passionate:"恋に全身全霊。一目惚れも修羅場も全力。感情のジェットコースターが魅力。",
-  })[flags.romance] || "";
-  const chrono = ({
-    morning:"早朝型。規律正しい生活が性格に表れている。",
-    night:"夜型。日中は気だるげだが、夜になると豹変する二面性。",
-    irregular:"生活リズムは気分次第。掴みどころのなさが魅力。",
-  })[flags.chrono] || "";
-  return {
-    archetype:pick(k.archetype), strength:pick(k.strength), flaw:pick(k.flaw),
-    magicSchool:m.school, magicTrigger:m.trigger, visual:pick(k.visual), haunt:pick(k.haunt),
-    speechP:sp.p, speechLine:sp.line, grade:gradeObj, rivalry, hybrid,
-    extra:[social,romance,chrono].filter(Boolean),
-  };
-}
-
 /* ─────────────── メインアプリ ─────────────── */
 function App() {
   const [phase,setPhase] = useState("intro");
   const [current,setCurrent] = useState(0);
   const [scores,setScores] = useState({makina:0,corvus:0,medicis:0,lumiere:0});
-  const [flags,setFlags] = useState({});
   const [selected,setSelected] = useState(null);
   const [fade,setFade] = useState("in");
   const [sorted,setSorted] = useState(null);
-  const [grade,setGrade] = useState(2);
-  const [character,setCharacter] = useState(null);
   const [answerChoices,setAnswerChoices] = useState([]);
   const [persona,setPersona] = useState(null);
   const [showScore,setShowScore] = useState(false);
@@ -643,30 +635,24 @@ function App() {
     setSelected(idx);
     const nextChoices=[...answerChoices]; nextChoices[current]=idx; setAnswerChoices(nextChoices);
     const ns={...scores}; Object.entries(opt.s||{}).forEach(([k,v])=>ns[k]+=v); setScores(ns);
-    const nf={...flags}; if(opt.f) Object.entries(opt.f).forEach(([k,v])=>nf[k]=v); setFlags(nf);
     setTimeout(()=>{
       if(current<QUESTIONS.length-1){
         transition(()=>{setCurrent(c=>c+1);setSelected(null);},380);
       } else {
         const arr=Object.entries(ns).sort((a,b)=>b[1]-a[1]); setSorted(arr);
         setPersona(buildPersonaMatches(nextChoices,ns));
-        transition(()=>{setPhase("grade");setSelected(null);},550);
+        transition(()=>{setPhase("result");setSelected(null);},550);
       }
     },520);
   };
 
-  const confirmGrade = ()=>{
-    setCharacter(buildCharacter(sorted[0][0],sorted[1][0],flags,grade));
-    transition(()=>setPhase("result"),500);
-  };
-  const reroll = ()=> setCharacter(buildCharacter(sorted[0][0],sorted[1][0],flags,grade));
   const reset = ()=>transition(()=>{
     setPhase("intro");setCurrent(0);setScores({makina:0,corvus:0,medicis:0,lumiere:0});
-    setFlags({});setSelected(null);setSorted(null);setGrade(2);setCharacter(null);setAnswerChoices([]);setPersona(null);setShowScore(false);
+    setSelected(null);setSorted(null);setAnswerChoices([]);setPersona(null);setShowScore(false);
   },500);
 
   const D = sorted ? DORMS[sorted[0][0]] : null;
-  const bg = D && (phase==="result"||phase==="grade") ? D.bg
+  const bg = D && phase==="result" ? D.bg
     : "linear-gradient(135deg,#07060c 0%,#100e1c 50%,#07060c 100%)";
 
   const wrap = {position:"relative",zIndex:1,maxWidth:680,margin:"0 auto",padding:"40px 20px",
@@ -703,8 +689,8 @@ function App() {
             <h2 style={{fontSize:16,fontWeight:400,color:"#b8a88a",marginBottom:4}}>寮分け＆人物共鳴診断</h2>
             <Divider />
             <p style={{fontSize:14,lineHeight:2,color:"#a89b87",maxWidth:500,margin:"0 auto 8px"}}>
-              あなたが創ろうとしているキャラクターは、<br/>武力・知識・政治・芸術──どの思想を宿すのか。</p>
-            <p style={{fontSize:13,color:"#7a6f60",lineHeight:1.8,marginBottom:30}}>全18問から所属寮と人物適性を読み解き、<br/>学院の28人物から「近い人物」と「相性の良い人物」を導きます。<br/>最後にキャラクター設定のスターターキットも生成します。</p>
+              もしあなたがこの学院へ招かれたなら、<br/>武力・知識・政治・芸術──どの思想を選ぶのか。</p>
+            <p style={{fontSize:13,color:"#7a6f60",lineHeight:1.8,marginBottom:30}}>全18問から、あなたの所属寮と性格傾向を読み解き、<br/>学院の28人物から「近い人物」と「相性の良い人物」を導きます。</p>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,maxWidth:440,margin:"0 auto 34px"}}>
               {Object.values(DORMS).map((d,i)=>(
                 <div key={i} style={{padding:"14px 12px",border:`1px solid ${d.color}55`,borderRadius:8,
@@ -750,40 +736,15 @@ function App() {
           </div>
         )}
 
-        {/* GRADE */}
-        {phase==="grade" && D && (
-          <div style={{textAlign:"center"}}>
-            <div className="cinzel" style={{fontSize:12,letterSpacing:4,color:"#7a6f60",marginBottom:14}}>STEP 2 — SELECT YEAR</div>
-            <div style={{fontSize:38,marginBottom:6,color:D.accent}}>{D.icon}</div>
-            <p style={{fontSize:14,color:"#b8a88a",marginBottom:6}}>所属は <span style={{color:D.accent,fontWeight:700}}>{D.name}</span> に決定。</p>
-            <p style={{fontSize:13,color:"#7a6f60",marginBottom:24}}>このキャラは何年生？ 立ち位置がキャラ設定に反映されます。</p>
-            <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:26}}>
-              {GRADES.map(g=>{
-                const sel=grade===g.id;
-                return (
-                  <button key={g.id} onClick={()=>setGrade(g.id)} style={{
-                    padding:"14px 18px",textAlign:"left",borderRadius:8,transition:"all .25s ease",
-                    background:sel?`${D.color}26`:"rgba(255,255,255,0.03)",
-                    border:sel?`1px solid ${D.accent}99`:"1px solid rgba(255,255,255,0.07)"}}>
-                    <div style={{fontSize:15,fontWeight:700,color:sel?D.accent:"#c4b89a",marginBottom:3}}>{g.label}</div>
-                    <div style={{fontSize:12,color:"#8a7d6b",lineHeight:1.6}}>{g.hint}</div>
-                  </button>
-                );
-              })}
-            </div>
-            <button onClick={confirmGrade} style={goldBtn()}>GENERATE</button>
-          </div>
-        )}
-
         {/* RESULT */}
-        {phase==="result" && D && character && (
+        {phase==="result" && D && persona && (
           <div>
             <div style={{textAlign:"center"}}>
               <div className="cinzel" style={{fontSize:12,letterSpacing:4,color:"#7a6f60",marginBottom:16}}>SORTING RESULT</div>
               <div style={{fontSize:50,marginBottom:8,color:D.accent,animation:"fadeIn .8s ease both"}}>{D.icon}</div>
               <h1 style={{fontSize:30,fontWeight:900,color:D.accent,marginBottom:2,animation:"fadeIn .8s ease .2s both"}}>{D.name}</h1>
               <div className="cinzel" style={{fontSize:13,letterSpacing:4,color:"#8a7d6b",marginBottom:8,animation:"fadeIn .8s ease .3s both"}}>{D.latin}</div>
-              <div style={{fontSize:13,color:D.accent,marginBottom:18,animation:"fadeIn .8s ease .35s both"}}>{character.grade.label} ・ {D.subtitle}</div>
+              <div style={{fontSize:13,color:D.accent,marginBottom:18,animation:"fadeIn .8s ease .35s both"}}>あなたの所属寮 ・ {D.subtitle}</div>
 
               <img src={D.sheet} alt={D.name+"設定資料"} style={{width:"100%",borderRadius:10,border:`1px solid ${D.color}66`,
                 boxShadow:`0 8px 30px rgba(0,0,0,0.5)`,marginBottom:6,animation:"fadeIn .8s ease .4s both"}} />
@@ -794,6 +755,8 @@ function App() {
               </div>
               <p style={{fontSize:14,lineHeight:2,color:"#c4b89a",textAlign:"left",marginBottom:8,animation:"fadeIn .8s ease .55s both"}}>{D.desc}</p>
             </div>
+
+            <PlayerProfile profile={persona.playerProfile} accent={D.accent} border={D.color} />
 
             {persona && (
               <section style={{marginTop:12,animation:"slideUp .6s ease .6s both"}}>
@@ -808,44 +771,6 @@ function App() {
                 </div>
               </section>
             )}
-
-            <div style={{marginTop:10,animation:"slideUp .6s ease .6s both"}}>
-              <Divider color={D.color} />
-              <div className="cinzel" style={{textAlign:"center",fontSize:12,letterSpacing:3,color:D.accent,marginBottom:14}}>CHARACTER STARTER KIT</div>
-
-              {[
-                ["アーキタイプ（役割）",character.archetype],
-                ["性格の核（長所）",character.strength],
-                ["性格の核（弱点）",character.flaw],
-                ["魔法系統",character.magicSchool],
-                ["魔法の発動トリガー",character.magicTrigger],
-                ["一人称",character.speechP],
-                ["口調サンプル",character.speechLine],
-                ["ビジュアル方向性",character.visual],
-                ["行きつけの場所",character.haunt],
-                ["学年・立ち位置",character.grade.hook],
-                ["二面性のヒント（2位の寮）",character.hybrid],
-                ["他寮との因縁フック",character.rivalry],
-              ].map(([label,val],i)=> val ? (
-                <div key={i} style={{marginBottom:11,padding:"12px 16px",background:"rgba(255,255,255,0.025)",borderLeft:`2px solid ${D.color}aa`,borderRadius:"0 6px 6px 0"}}>
-                  <div style={{fontSize:11,letterSpacing:1,color:D.accent,marginBottom:5}}>{label}</div>
-                  <div style={{fontSize:14,lineHeight:1.7,color:"#d8ccb4"}}>{val}</div>
-                </div>
-              ) : null)}
-
-              {character.extra.length>0 && (
-                <div style={{marginBottom:11,padding:"12px 16px",background:"rgba(255,255,255,0.025)",borderLeft:`2px solid ${D.color}aa`,borderRadius:"0 6px 6px 0"}}>
-                  <div style={{fontSize:11,letterSpacing:1,color:D.accent,marginBottom:5}}>回答から拾った追加の個性</div>
-                  {character.extra.map((e,j)=>(<div key={j} style={{fontSize:14,lineHeight:1.7,color:"#d8ccb4",marginTop:j?6:0}}>・{e}</div>))}
-                </div>
-              )}
-
-              <div style={{display:"flex",flexWrap:"wrap",gap:8,justifyContent:"center",margin:"18px 0 6px"}}>
-                {D.traits.map(t=>(
-                  <span key={t} style={{padding:"5px 14px",fontSize:12,color:D.accent,background:`${D.color}1e`,border:`1px solid ${D.color}44`,borderRadius:20}}>{t}</span>
-                ))}
-              </div>
-            </div>
 
             <div style={{textAlign:"center"}}>
               <button onClick={()=>setShowScore(!showScore)} style={{background:"none",border:"none",color:"#7a6f60",fontSize:13,margin:"8px 0",padding:"8px 16px"}}>
@@ -867,17 +792,16 @@ function App() {
                       </div>
                     );
                   })}
-                  <p style={{fontSize:11,color:"#5a5244",marginTop:8,lineHeight:1.6}}>※ 1位と2位が僅差なら、両寮の気質を併せ持つ「ハイブリッドなキャラ」として深みを出せます。</p>
+                  <p style={{fontSize:11,color:"#5a5244",marginTop:8,lineHeight:1.6}}>※ 1位と2位が僅差なら、あなたは両方の寮の気質を強く併せ持っています。</p>
                 </div>
               )}
             </div>
 
             <div style={{display:"flex",gap:12,justifyContent:"center",flexWrap:"wrap",marginTop:16}}>
-              <button onClick={reroll} style={{padding:"13px 26px",fontSize:14,fontWeight:700,color:D.accent,background:"transparent",border:`1px solid ${D.accent}99`,borderRadius:6,letterSpacing:1}}>スターターキットを再生成</button>
               <button onClick={reset} style={{padding:"13px 26px",fontSize:14,fontWeight:700,color:"#0a0a12",background:`linear-gradient(135deg,${D.accent},${D.color})`,border:"none",borderRadius:6,letterSpacing:1}}>最初から診断</button>
             </div>
             <p style={{textAlign:"center",fontSize:11,color:"#5a5244",marginTop:22,lineHeight:1.7}}>
-              人物診断は回答に表れた気質をもとにした創作上の指針です。<br/>気に入った要素を拾い、自由にキャラを育ててください。
+              この診断は、回答に表れた価値観や行動傾向を<br/>レガリア王立魔術学院の世界観に重ねたものです。
             </p>
           </div>
         )}
