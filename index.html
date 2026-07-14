@@ -278,36 +278,42 @@ const CHARACTERS = [
   },
   {
     id:"shion",name:"シオン・幽蘭",dorm:"corvus",kind:"生徒",affiliation:"コルウス寮・1年生",
+    card:"assets/characters/corvus/shion.webp",
     summary:"人を避けて地下に迷宮まで築いた魔法オタク。臆病だが、危険な研究分野では驚くほど優秀。",
     quote:"研究なら、少しだけ一緒に進めてもいいかも。",
     signals:{introvert:3,research:3,forbidden:2,curious:3,lonely:2,guarded:2},compatibleWith:["curious","supportive","introvert","loyal"],traits:["引きこもり","迷宮術式","魔法オタク"]
   },
   {
     id:"silvere",name:"シルヴェール・メルシィ",dorm:"corvus",kind:"生徒",affiliation:"コルウス寮・3年生",
+    card:"assets/characters/corvus/silvere.webp",
     summary:"昼は頼りなくおどおど、夜は狂気を帯びた魔力狩りの研究者へ変わる二面性の持ち主。",
     quote:"今日も魔力狩りだ。プキュイの食事を集めないとね。",
     signals:{introvert:3,nocturnal:3,research:3,forbidden:2,irregular:2,guarded:2},compatibleWith:["supportive","introvert","nocturnal","curious"],traits:["昼夜の二面性","吸収魔法","魔力狩り"]
   },
   {
     id:"shuri-shuna",name:"シュリ＆シュナ・メルクォート",dorm:"corvus",kind:"生徒",affiliation:"コルウス寮・2年生の双子",
+    card:"assets/characters/corvus/shuri-shuna.webp",
     summary:"創造と破壊、それぞれの専門魔法だけに没頭する首席の双子。興味の扉が開くと急に饒舌になる。",
     quote:"その話、創造か破壊に関係ある？ なら続きを聞かせて。",
     signals:{research:3,curious:3,detached:3,destructive:2,forbidden:2,perfectionist:2},compatibleWith:["curious","research","independent","detached"],traits:["創造と破壊","首席","研究没頭"]
   },
   {
     id:"nero",name:"ネロ・ノクス",dorm:"corvus",kind:"生徒",affiliation:"コルウス寮・3年生（留年中）",
+    card:"assets/characters/corvus/nero.webp",
     summary:"夢と睡眠を研究する無口な夜型研究者。人付き合いは苦手でも、疲れた相手を放っておけない。",
     quote:"また寝てないね。薬を飲んで、少し休んで。",
     signals:{introvert:3,nocturnal:3,research:3,supportive:3,guarded:2,analytical:2},compatibleWith:["lonely","introvert","guarded","nocturnal"],traits:["夢見魔法","静かな優しさ","夜型"]
   },
   {
     id:"gio",name:"ジオ・ヴェルガイア",dorm:"corvus",kind:"生徒",affiliation:"コルウス寮・2年生",
+    card:"assets/characters/corvus/gio.webp",
     summary:"報われない努力と兄への劣等感を抱え、傷つく前に他人を拒絶してしまう不器用な弟。",
     quote:"何も知らないくせに、簡単に近づかないで。",
     signals:{introvert:3,lonely:3,guarded:3,ambitious:1,emotional:2,devoted:1},compatibleWith:["supportive","loyal","direct","devoted"],traits:["劣等感","努力家","不器用"]
   },
   {
     id:"mishena",name:"ミシェナ・ヘルトヴェイン",dorm:"corvus",kind:"生徒",affiliation:"コルウス寮・3年生",
+    card:"assets/characters/corvus/mishena.webp",
     summary:"底なしに明るく誰にでも優しい学園の『何でも屋』。親友を守れなかった悔いを胸に、あらゆる魔法を磨き続ける。",
     quote:"困ったときは、いつでもうちに頼ってね♪",
     signals:{extrovert:3,supportive:3,protective:3,flexible:3,devoted:2,disciplined:2,emotional:1},compatibleWith:["lonely","guarded","introvert","impulsive"],traits:["底なしの明るさ","何でも屋","万能魔法"]
@@ -594,6 +600,11 @@ function PersonaCard({label,profile,reasons,mode}) {
     <article className="persona-card" style={{padding:"18px 17px",border:`1px solid ${border}66`,borderRadius:8,
       background:`linear-gradient(145deg,${border}1c,rgba(255,255,255,0.025))`,display:"flex",flexDirection:"column"}}>
       <div style={{fontSize:11,color:accent,marginBottom:8}}>{label}</div>
+      {profile.card && (
+        <img src={profile.card} alt={profile.name+"の人物カード"} decoding="async"
+          style={{width:"100%",aspectRatio:"3 / 5",objectFit:"cover",display:"block",marginBottom:14,
+            borderRadius:6,border:`1px solid ${border}88`,background:"#090611",boxShadow:"0 12px 32px rgba(0,0,0,.4)"}} />
+      )}
       <h3 style={{fontSize:19,lineHeight:1.45,color:"#f3ead4",marginBottom:4,overflowWrap:"anywhere"}}>{profile.name}</h3>
       <div style={{fontSize:11,color:"#8a7d6b",lineHeight:1.6,marginBottom:12}}>{profile.affiliation}</div>
       <p style={{fontSize:13,color:"#c4b89a",lineHeight:1.8,marginBottom:12}}>{profile.summary}</p>
