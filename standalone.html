@@ -307,6 +307,12 @@ const CHARACTERS = [
     signals:{introvert:3,lonely:3,guarded:3,ambitious:1,emotional:2,devoted:1},compatibleWith:["supportive","loyal","direct","devoted"],traits:["劣等感","努力家","不器用"]
   },
   {
+    id:"mishena",name:"ミシェナ・ヘルトヴェイン",dorm:"corvus",kind:"生徒",affiliation:"コルウス寮・3年生",
+    summary:"底なしに明るく誰にでも優しい学園の『何でも屋』。親友を守れなかった悔いを胸に、あらゆる魔法を磨き続ける。",
+    quote:"困ったときは、いつでもうちに頼ってね♪",
+    signals:{extrovert:3,supportive:3,protective:3,flexible:3,devoted:2,disciplined:2,emotional:1},compatibleWith:["lonely","guarded","introvert","impulsive"],traits:["底なしの明るさ","何でも屋","万能魔法"]
+  },
+  {
     id:"rize",name:"リゼ・アークライト",dorm:"makina",kind:"生徒",affiliation:"マキナ寮・2年生",
     summary:"考えるより先に身体が動く豪快な突撃役。喧嘩っ早いが、仲間を傷つける者だけは許さない。",
     quote:"細かいことは後！ まず動いてから考える！",
@@ -690,7 +696,7 @@ function App() {
             <Divider />
             <p style={{fontSize:14,lineHeight:2,color:"#a89b87",maxWidth:500,margin:"0 auto 8px"}}>
               もしあなたがこの学院へ招かれたなら、<br/>武力・知識・政治・芸術──どの思想を選ぶのか。</p>
-            <p style={{fontSize:13,color:"#7a6f60",lineHeight:1.8,marginBottom:30}}>全18問から、あなたの所属寮と性格傾向を読み解き、<br/>学院の28人物から「近い人物」と「相性の良い人物」を導きます。</p>
+            <p style={{fontSize:13,color:"#7a6f60",lineHeight:1.8,marginBottom:30}}>全18問から、あなたの所属寮と性格傾向を読み解き、<br/>学院の29人物から「近い人物」と「相性の良い人物」を導きます。</p>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,maxWidth:440,margin:"0 auto 34px"}}>
               {Object.values(DORMS).map((d,i)=>(
                 <div key={i} style={{padding:"14px 12px",border:`1px solid ${d.color}55`,borderRadius:8,
