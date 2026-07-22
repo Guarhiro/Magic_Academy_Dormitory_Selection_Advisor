@@ -340,13 +340,6 @@ const CHARACTERS = [
     signals:{active:3,direct:3,impulsive:3,loyal:3,protective:3,combat:3},compatibleWith:["guarded","introvert","analytical","loyal"],traits:["一直線","突撃力","仲間思い"]
   },
   {
-    id:"ash",name:"アッシュ・グレイヴ",dorm:"makina",kind:"生徒",affiliation:"マキナ寮・4年生",
-    card:"assets/characters/makina/ash.webp",
-    summary:"自分の損傷には無頓着なのに、後輩の無茶には静かに怒る、寡黙な義手義足の先輩。",
-    quote:"うるさい寮だよな。嫌いじゃないけど。",
-    signals:{guarded:3,calm:3,protective:3,supportive:2,martial:2,disciplined:2},compatibleWith:["impulsive","active","lonely","loyal"],traits:["寡黙","身体改造","後輩思い"]
-  },
-  {
     id:"carmina",name:"カルミナ・ブリジット",dorm:"makina",kind:"生徒",affiliation:"マキナ寮・4年生",
     card:"assets/characters/makina/carmina.webp",
     summary:"剣技も生活も一寸の狂いを許さない歩く軍律。厳格な外面に、身内への情と可愛い物好きを隠す。",
@@ -424,7 +417,7 @@ const CHARACTERS = [
     signals:{supportive:3,protective:3,disciplined:2,calm:3,refined:2,devoted:2},compatibleWith:["impulsive","guarded","lonely","protective"],traits:["治癒術","慈愛","静かな威厳"]
   },
   {
-    id:"balt",name:"バルト・アークライト",dorm:"all",kind:"特殊",affiliation:"学園長・全寮統括",
+    id:"balt",name:"バルト・アークライト",dorm:null,kind:"特殊",affiliation:"学園長・全寮統括",
     card:"assets/characters/special/balt.webp",
     summary:"型破りな悪ノリと底なしの愛情で全生徒の青春を守る、不老不死の最強学園長。",
     quote:"もっと歪んだこだわりを、その拳に込めてみろ！",
@@ -438,7 +431,7 @@ const CHARACTERS = [
     signals:{disciplined:3,combat:3,analytical:3,guarded:2,perfectionist:2,direct:2},compatibleWith:["impulsive","competitive","disciplined","combat"],traits:["合理主義","愛刀","元戦闘狂"]
   },
   {
-    id:"f",name:"フェルメディーチェ（F）",dorm:"all",kind:"特殊",affiliation:"学園の野良カラス・情報収集家",
+    id:"f",name:"フェルメディーチェ（F）",dorm:null,kind:"特殊",affiliation:"学園の野良カラス・情報収集家",
     card:"assets/characters/special/f.webp",
     summary:"退屈を嫌い、落とし物と学院中のスクープを集め歩く、掴みどころのない人型のカラス。",
     quote:"アラヤダ、大スクープじゃないの。",
@@ -530,6 +523,52 @@ const Divider = ({color="#c4a265"}) => (
   </div>
 );
 
+function getPublicShareUrl() {
+  const localHosts = ["localhost","127.0.0.1","0.0.0.0","::1"];
+  if (!/^https?:$/.test(window.location.protocol) || localHosts.includes(window.location.hostname)) return "";
+  return `${window.location.origin}${window.location.pathname}`;
+}
+
+function buildShareText(dorm,persona) {
+  return [
+    "レガリア王立魔術学院 寮分け＆人物共鳴診断",
+    `所属寮：${dorm.name}`,
+    `診断タイプ：${persona.playerProfile.title}`,
+    `最も近い人物：${persona.similar.name}`,
+    `相性の良い人物：${persona.compatible.name}`,
+    "",
+    "#レガリア王立魔術学院 #寮分け診断",
+  ].join("\n");
+}
+
+async function copyShareText(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (error) {
+      // file:// や権限拒否時は、下の互換コピーへ切り替える。
+    }
+  }
+  const previousFocus = document.activeElement;
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly","");
+  Object.assign(textarea.style,{position:"fixed",inset:"0 auto auto 0",opacity:"0",pointerEvents:"none"});
+  document.body.appendChild(textarea);
+  let copied = false;
+  try {
+    textarea.focus();
+    textarea.select();
+    copied = Boolean(document.execCommand && document.execCommand("copy"));
+  } catch (error) {
+  } finally {
+    textarea.remove();
+    if (previousFocus && previousFocus.isConnected && typeof previousFocus.focus === "function") previousFocus.focus();
+  }
+  return copied;
+}
+
 function buildSignalCounts(answerChoices) {
   return answerChoices.reduce((counts,choice,questionIndex)=>{
     const tags = ANSWER_TAGS[questionIndex] && ANSWER_TAGS[questionIndex][choice];
@@ -573,7 +612,7 @@ function buildPersonaMatches(answerChoices,dormScores) {
   const ranked = CHARACTERS.map(profile=>{
     const signalScore = Object.entries(profile.signals)
       .reduce((total,[tag,weight])=>total+(counts[tag]||0)*weight,0);
-    const dormFit = profile.dorm==="all" ? 3.5 : ((dormScores[profile.dorm]||0)/maxDorm)*7;
+    const dormFit = profile.dorm == null ? 0 : ((dormScores[profile.dorm]||0)/maxDorm)*7;
     return {profile,score:signalScore+dormFit};
   }).sort((a,b)=>b.score-a.score || a.profile.name.localeCompare(b.profile.name,"ja"));
 
@@ -584,7 +623,7 @@ function buildPersonaMatches(answerChoices,dormScores) {
       const complement = profile.compatibleWith.reduce((total,tag)=>total+(counts[tag]||0)*2.5,0);
       const resonance = Object.entries(profile.signals)
         .reduce((total,[tag,weight])=>total+(counts[tag]||0)*weight*.16,0);
-      const freshPerspective = profile.dorm==="all" || profile.dorm!==similar.dorm ? 1.2 : .4;
+      const freshPerspective = profile.dorm == null || profile.dorm!==similar.dorm ? 1.2 : .4;
       return {profile,score:complement+resonance+freshPerspective};
     })
     .sort((a,b)=>b.score-a.score || a.profile.name.localeCompare(b.profile.name,"ja"))[0].profile;
@@ -622,7 +661,7 @@ function PlayerProfile({profile,accent,border}) {
 }
 
 function PersonaCard({label,profile,reasons,mode}) {
-  const dorm = profile.dorm==="all" ? null : DORMS[profile.dorm];
+  const dorm = profile.dorm == null ? null : DORMS[profile.dorm];
   const accent = dorm ? dorm.accent : "#d6b86f";
   const border = dorm ? dorm.color : "#8f7335";
   const reasonText = reasons.length ? reasons.join("・") : "回答全体のバランス";
@@ -663,6 +702,7 @@ function App() {
   const [answerChoices,setAnswerChoices] = useState([]);
   const [persona,setPersona] = useState(null);
   const [showScore,setShowScore] = useState(false);
+  const [shareStatus,setShareStatus] = useState("");
 
   const transition = (fn,delay=450)=>{ setFade("out"); setTimeout(()=>{fn();setFade("in");},delay); };
   const start = ()=>transition(()=>setPhase("quiz"),500);
@@ -695,10 +735,36 @@ function App() {
 
   const reset = ()=>transition(()=>{
     setPhase("intro");setCurrent(0);setScores({makina:0,corvus:0,medicis:0,lumiere:0});
-    setSelected(null);setSorted(null);setAnswerChoices([]);setPersona(null);setShowScore(false);
+    setSelected(null);setSorted(null);setAnswerChoices([]);setPersona(null);setShowScore(false);setShareStatus("");
   },500);
 
   const D = sorted ? DORMS[sorted[0][0]] : null;
+  const shareResult = async()=>{
+    if (!D || !persona) return;
+    const title = "レガリア王立魔術学院 ― 寮分け＆人物共鳴診断";
+    const text = buildShareText(D,persona);
+    const url = getPublicShareUrl();
+    const shareData = url ? {title,text,url} : {title,text};
+    const copyText = url ? `${text}\n${url}` : text;
+    setShareStatus("");
+
+    if (typeof navigator.share === "function") {
+      try {
+        await navigator.share(shareData);
+        setShareStatus("共有しました");
+        return;
+      } catch (error) {
+        if (error && error.name === "AbortError") return;
+      }
+    }
+
+    if (await copyShareText(copyText)) {
+      setShareStatus("共有文をコピーしました");
+      return;
+    }
+    window.prompt("以下の共有文をコピーしてください",copyText);
+    setShareStatus("共有文を表示しました");
+  };
   const bg = D && phase==="result" ? D.bg
     : "linear-gradient(135deg,#07060c 0%,#100e1c 50%,#07060c 100%)";
 
@@ -737,7 +803,7 @@ function App() {
             <Divider />
             <p style={{fontSize:14,lineHeight:2,color:"#a89b87",maxWidth:500,margin:"0 auto 8px"}}>
               もしあなたがこの学院へ招かれたなら、<br/>武力・知識・政治・芸術──どの思想を選ぶのか。</p>
-            <p style={{fontSize:13,color:"#7a6f60",lineHeight:1.8,marginBottom:30}}>全18問から、あなたの所属寮と性格傾向を読み解き、<br/>学院の30人物から「近い人物」と「相性の良い人物」を導きます。</p>
+            <p style={{fontSize:13,color:"#7a6f60",lineHeight:1.8,marginBottom:30}}>全18問から、あなたの所属寮と性格傾向を読み解き、<br/>学院の29人物から「近い人物」と「相性の良い人物」を導きます。</p>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,maxWidth:440,margin:"0 auto 34px"}}>
               {Object.values(DORMS).map((d,i)=>(
                 <div key={i} style={{padding:"14px 12px",border:`1px solid ${d.color}55`,borderRadius:8,
@@ -845,8 +911,10 @@ function App() {
             </div>
 
             <div style={{display:"flex",gap:12,justifyContent:"center",flexWrap:"wrap",marginTop:16}}>
-              <button onClick={reset} style={{padding:"13px 26px",fontSize:14,fontWeight:700,color:"#0a0a12",background:`linear-gradient(135deg,${D.accent},${D.color})`,border:"none",borderRadius:6,letterSpacing:1}}>最初から診断</button>
+              <button type="button" onClick={shareResult} style={{padding:"13px 26px",minWidth:190,fontSize:14,fontWeight:700,color:"#0a0a12",background:`linear-gradient(135deg,${D.accent},${D.color})`,border:"none",borderRadius:6,letterSpacing:1}}>この結果をシェア</button>
+              <button type="button" onClick={reset} style={{padding:"13px 26px",fontSize:14,fontWeight:700,color:D.accent,background:"rgba(0,0,0,0.16)",border:`1px solid ${D.color}88`,borderRadius:6,letterSpacing:1}}>最初から診断</button>
             </div>
+            <p id="share-status" role="status" aria-live="polite" style={{minHeight:20,textAlign:"center",fontSize:12,color:D.accent,marginTop:10}}>{shareStatus}</p>
             <p style={{textAlign:"center",fontSize:11,color:"#5a5244",marginTop:22,lineHeight:1.7}}>
               この診断は、回答に表れた価値観や行動傾向を<br/>レガリア王立魔術学院の世界観に重ねたものです。
             </p>
