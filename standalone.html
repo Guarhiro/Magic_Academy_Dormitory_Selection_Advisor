@@ -80,6 +80,13 @@ const YOUTUBE_URL = "https://youtu.be/CGTlaMawHvY";
 const X_POST_ID = "2078046220204019934";
 const X_POST_URL = "https://x.com/pomyan4/status/2078046220204019934";
 
+const BGM_TRACKS = {
+  makina:   {src:"assets/bgm/makina.mp3",title:"鉄と汗に誓う"},
+  corvus:   {src:"assets/bgm/corvus.mp3",title:"真理を誓う"},
+  medicis:  {src:"assets/bgm/medicis.mp3",title:"微笑みの誓い"},
+  lumiere:  {src:"assets/bgm/lumiere.mp3",title:"光に誓う"},
+};
+
 /* ─────────────── 寮データ（公式設定反映） ─────────────── */
 const DORMS = {
   makina: {
@@ -817,9 +824,41 @@ function App() {
   const [persona,setPersona] = useState(null);
   const [showScore,setShowScore] = useState(false);
   const [shareStatus,setShareStatus] = useState("");
+  const [bgmPlaying,setBgmPlaying] = useState(false);
+  const [bgmStatus,setBgmStatus] = useState("");
+  const bgmRef = useRef(null);
 
   const transition = (fn,delay=450)=>{ setFade("out"); setTimeout(()=>{fn();setFade("in");},delay); };
   const start = ()=>transition(()=>setPhase("quiz"),500);
+
+  const stopBgm = ()=>{
+    const audio=bgmRef.current;
+    if(audio){
+      audio.pause();
+      audio.currentTime=0;
+    }
+    setBgmPlaying(false);
+    setBgmStatus("");
+  };
+
+  const toggleBgm = async()=>{
+    const audio=bgmRef.current;
+    if(!audio) return;
+    setBgmStatus("");
+    if(!audio.paused){
+      stopBgm();
+      return;
+    }
+    audio.volume=0.3;
+    audio.currentTime=0;
+    try{
+      await audio.play();
+      setBgmPlaying(true);
+    }catch(error){
+      setBgmPlaying(false);
+      setBgmStatus("BGMを再生できませんでした。時間を置いてもう一度お試しください。");
+    }
+  };
 
   const dormMax = useMemo(()=>{
     const mx={makina:0,corvus:0,medicis:0,lumiere:0};
@@ -847,12 +886,16 @@ function App() {
     },520);
   };
 
-  const reset = ()=>transition(()=>{
-    setPhase("intro");setCurrent(0);setScores({makina:0,corvus:0,medicis:0,lumiere:0});
-    setSelected(null);setSorted(null);setAnswerChoices([]);setPersona(null);setShowScore(false);setShareStatus("");
-  },500);
+  const reset = ()=>{
+    stopBgm();
+    transition(()=>{
+      setPhase("intro");setCurrent(0);setScores({makina:0,corvus:0,medicis:0,lumiere:0});
+      setSelected(null);setSorted(null);setAnswerChoices([]);setPersona(null);setShowScore(false);setShareStatus("");
+    },500);
+  };
 
   const D = sorted ? DORMS[sorted[0][0]] : null;
+  const bgmTrack = sorted ? BGM_TRACKS[sorted[0][0]] : null;
   const shareResult = async()=>{
     if (!D || !persona) return;
     const title = "レガリア王立魔術学院 ― 寮分け＆人物共鳴診断";
@@ -1004,6 +1047,24 @@ function App() {
               <h1 style={{fontSize:30,fontWeight:900,color:D.accent,marginBottom:2,animation:"fadeIn .8s ease .2s both"}}>{D.name}</h1>
               <div className="cinzel" style={{fontSize:13,letterSpacing:4,color:"#8a7d6b",marginBottom:8,animation:"fadeIn .8s ease .3s both"}}>{D.latin}</div>
               <div style={{fontSize:13,color:D.accent,marginBottom:18,animation:"fadeIn .8s ease .35s both"}}>あなたの所属寮 ・ {D.subtitle}</div>
+
+              {bgmTrack && (
+                <div style={{margin:"0 auto 20px",animation:"fadeIn .8s ease .38s both"}}>
+                  <audio ref={bgmRef} src={bgmTrack.src} loop preload="none"
+                    onPlay={()=>setBgmPlaying(true)} onPause={()=>setBgmPlaying(false)}
+                    onError={()=>{setBgmPlaying(false);setBgmStatus("BGMを読み込めませんでした。音声ファイルをご確認ください。");}} />
+                  <button type="button" onClick={toggleBgm} aria-pressed={bgmPlaying}
+                    aria-label={`${bgmTrack.title}のBGMを${bgmPlaying?"停止":"再生"}`}
+                    style={{minWidth:156,padding:"10px 20px",fontSize:13,fontWeight:700,letterSpacing:2,
+                      color:bgmPlaying?"#0a0a12":D.accent,
+                      background:bgmPlaying?`linear-gradient(135deg,${D.accent},${D.color})`:"rgba(0,0,0,0.2)",
+                      border:`1px solid ${D.color}99`,borderRadius:999}}>
+                    <span aria-hidden="true">♪</span> {bgmPlaying?"BGM OFF":"BGM ON"}
+                  </button>
+                  <div style={{fontSize:11,color:"#7a6f60",marginTop:7}}>♪ {bgmTrack.title}</div>
+                  <p role="status" aria-live="polite" style={{minHeight:bgmStatus?18:0,fontSize:11,color:D.accent,marginTop:bgmStatus?7:0}}>{bgmStatus}</p>
+                </div>
+              )}
 
               <img src={D.sheet} alt={D.name+"設定資料"} style={{width:"100%",borderRadius:10,border:`1px solid ${D.color}66`,
                 boxShadow:`0 8px 30px rgba(0,0,0,0.5)`,marginBottom:6,animation:"fadeIn .8s ease .4s both"}} />
