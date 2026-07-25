@@ -26,6 +26,9 @@
   @keyframes floatCrest { 0%,100% { transform: translateY(0);} 50% { transform: translateY(-6px);} }
   .persona-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .persona-card { min-width: 0; }
+  .persona-work-link { display: flex; align-items: center; justify-content: center; min-height: 44px; margin-top: 12px; padding: 10px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-decoration: none; transition: transform .2s ease, filter .2s ease, box-shadow .2s ease; }
+  .persona-work-link:hover { transform: translateY(-1px); filter: brightness(1.12); }
+  .persona-work-link:focus-visible { outline: 2px solid #f3ead4; outline-offset: 3px; }
   .intro-brand { max-width: 680px; margin: 0 auto; }
   .intro-brand > img { width: 86px !important; height: 108px !important; margin-bottom: 8px !important; }
   .pv-section { width: 100%; max-width: 880px; margin: 22px auto 0; }
@@ -283,6 +286,7 @@ const TAG_LABELS = {
 const CHARACTERS = [
   {
     id:"emma",name:"エマ・ペルライン",dorm:"lumiere",kind:"生徒",affiliation:"ルミエール寮・3年生",
+    workUrl:"https://kyarapu.com/detail/6a4a03b2342ecd6589b9905e",
     card:"assets/characters/lumiere/emma.webp",
     summary:"鋭い観察眼と毒舌で他人を遠ざけながら、信じた相手には全身で甘える人間不信の魅了術師。",
     quote:"嘘もお世辞もいらない。信じられるものだけがあればいい。",
@@ -290,6 +294,7 @@ const CHARACTERS = [
   },
   {
     id:"rein",name:"レイン・アルセリオ",dorm:"lumiere",kind:"生徒",affiliation:"ルミエール寮・3年生",
+    workUrl:"https://s.kyarapu.com/s/6a60474bb5a319f9664b80b1",
     card:"assets/characters/lumiere/rein.webp",
     summary:"上品で社交的な仮面の奥に、強い自己愛と支配者気質を隠す天才アクセサリー職人。",
     quote:"僕を拒むなんて、ずいぶん生意気だね。",
@@ -332,6 +337,7 @@ const CHARACTERS = [
   },
   {
     id:"shion",name:"シオン・幽蘭",dorm:"corvus",kind:"生徒",affiliation:"コルウス寮・1年生",
+    workUrl:"https://s.kyarapu.com/s/6a629236ac896ec713802db1",
     card:"assets/characters/corvus/shion.webp",
     summary:"人を避けて地下に迷宮まで築いた魔法オタク。臆病だが、危険な研究分野では驚くほど優秀。",
     quote:"研究なら、少しだけ一緒に進めてもいいかも。",
@@ -339,6 +345,7 @@ const CHARACTERS = [
   },
   {
     id:"silvere",name:"シルヴェール・メルシィ",dorm:"corvus",kind:"生徒",affiliation:"コルウス寮・3年生",
+    workUrl:"https://s.kyarapu.com/s/6a637500344a106fef58c526",
     card:"assets/characters/corvus/silvere.webp",
     summary:"昼は頼りなくおどおど、夜は狂気を帯びた魔力狩りの研究者へ変わる二面性の持ち主。",
     quote:"今日も魔力狩りだ。プキュイの食事を集めないとね。",
@@ -346,6 +353,7 @@ const CHARACTERS = [
   },
   {
     id:"shuri-shuna",name:"シュリ＆シュナ・メルクォート",dorm:"corvus",kind:"生徒",affiliation:"コルウス寮・2年生の双子",
+    workUrl:"https://s.kyarapu.com/s/6a60e3304315c04c2dcbd20c",
     card:"assets/characters/corvus/shuri-shuna.webp",
     summary:"創造と破壊、それぞれの専門魔法だけに没頭する首席の双子。興味の扉が開くと急に饒舌になる。",
     quote:"その話、創造か破壊に関係ある？ なら続きを聞かせて。",
@@ -353,6 +361,7 @@ const CHARACTERS = [
   },
   {
     id:"nero",name:"ネロ・ノクス",dorm:"corvus",kind:"生徒",affiliation:"コルウス寮・3年生（留年中）",
+    workUrl:"https://kyarapu.com/detail/6a55ee67aa45ea7064425e1b",
     card:"assets/characters/corvus/nero.webp",
     summary:"夢と睡眠を研究する無口な夜型研究者。人付き合いは苦手でも、疲れた相手を放っておけない。",
     quote:"また寝てないね。薬を飲んで、少し休んで。",
@@ -367,6 +376,7 @@ const CHARACTERS = [
   },
   {
     id:"mishena",name:"ミシェナ・ヘルトヴェイン",dorm:"corvus",kind:"生徒",affiliation:"コルウス寮・3年生",
+    workUrl:"https://kyarapu.com/detail/6a6328a6b6d648da2ca3436e",
     card:"assets/characters/corvus/mishena.webp",
     summary:"底なしに明るく誰にでも優しい学園の『何でも屋』。親友を守れなかった悔いを胸に、あらゆる魔法を磨き続ける。",
     quote:"困ったときは、いつでもうちに頼ってね♪",
@@ -374,6 +384,7 @@ const CHARACTERS = [
   },
   {
     id:"nightray-lilith",name:"ナイトレイ・リリス",dorm:"corvus",kind:"生徒",affiliation:"コルウス寮・1年生",
+    workUrl:"https://s.kyarapu.com/s/6a635b7802808913928e9ea9",
     card:"assets/characters/corvus/nightray-lilith.webp",
     summary:"夜通し薬の研究と生物の解剖に没頭し、授業中は爆睡。部屋で爆発を起こして叱られてもまるで反省しない、自由気ままな一年生。",
     quote:"やっと…やっと完成したぞ!!新しい薬が!!",
@@ -395,6 +406,7 @@ const CHARACTERS = [
   },
   {
     id:"ignis",name:"イグニス・レイヴン",dorm:"makina",kind:"生徒",affiliation:"マキナ寮・3年生",
+    workUrl:"https://s.kyarapu.com/s/6a636fdfcc67823fdabc94a3",
     card:"assets/characters/makina/ignis.webp",
     summary:"悪気なく他人の感情を踏み抜く喧嘩好きの天才。心を開くと、その力を相手を守るために使う。",
     quote:"できないなら辞めればいい。何を怒ってるんだ？",
@@ -402,6 +414,7 @@ const CHARACTERS = [
   },
   {
     id:"lion-leon",name:"リオン＆レオン・ヴァルフレア",dorm:"makina",kind:"生徒",affiliation:"マキナ寮・1年生の双子",
+    workUrl:"https://s.kyarapu.com/s/6a6295e10280891392581be2",
     card:"assets/characters/makina/lion-leon.webp",
     summary:"陰と陽の正反対な気質を持ちながら、前衛と支援を交代して一つの大剣を振るう負けず嫌いの双子。",
     quote:"僕たちは二人で一つ。次の前線は代われ。",
@@ -416,6 +429,7 @@ const CHARACTERS = [
   },
   {
     id:"yucca",name:"ユッカ・シーカヴィルタ",dorm:"medicis",kind:"生徒",affiliation:"メディシス寮・4年生",
+    workUrl:"https://s.kyarapu.com/s/6a638358ca93380b75c85a94",
     card:"assets/characters/medicis/yucca.webp",
     summary:"誰にでも穏やかに手を差し伸べる聖人。その優しさは、他人へ期待しない無自覚な傲慢さでもある。",
     quote:"大丈夫。これくらいで怒ったりしないよ。",
@@ -804,9 +818,18 @@ function PersonaCard({label,profile,reasons,mode}) {
           <span key={trait} style={{padding:"4px 9px",fontSize:10,color:accent,border:`1px solid ${border}55`,borderRadius:6,background:`${border}18`}}>{trait}</span>
         ))}
       </div>
-      <div style={{marginTop:"auto",paddingTop:11,borderTop:"1px solid rgba(255,255,255,0.07)",fontSize:11,lineHeight:1.65,color:"#7f7463"}}>
-        {mode==="similar" ? "回答に強く表れた気質" : "相性を結ぶ気質"}<br/>
-        <span style={{color:accent}}>{reasonText}</span>
+      <div style={{marginTop:"auto"}}>
+        <div style={{paddingTop:11,borderTop:"1px solid rgba(255,255,255,0.07)",fontSize:11,lineHeight:1.65,color:"#7f7463"}}>
+          {mode==="similar" ? "回答に強く表れた気質" : "相性を結ぶ気質"}<br/>
+          <span style={{color:accent}}>{reasonText}</span>
+        </div>
+        {profile.workUrl && (
+          <a className="persona-work-link" href={profile.workUrl} target="_blank" rel="noopener noreferrer"
+            aria-label={`${profile.name}の作品へ（新しいタブで開きます）`}
+            style={{color:accent,border:`1px solid ${border}99`,background:`linear-gradient(135deg,${border}2e,rgba(0,0,0,0.22))`,boxShadow:`inset 0 0 18px ${border}12`}}>
+            作品へ
+          </a>
+        )}
       </div>
     </article>
   );
