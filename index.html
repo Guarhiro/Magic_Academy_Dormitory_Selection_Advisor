@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>レガリア王立魔術学院 ― 寮分け＆キャラ生成診断</title>
-<meta name="description" content="あなたが創るキャラクターにふさわしい寮を診断し、キャラクター設定のスターターキットを生成します。" />
+<title>レガリア王立魔術学院 ― 寮分け＆人物共鳴診断</title>
+<meta name="description" content="18問からあなたの所属寮、性格傾向、近い人物、相性の良い人物を診断します。" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Noto+Serif+JP:wght@400;500;700;900&display=swap" rel="stylesheet" />
@@ -14,8 +14,9 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { background: #07060c; }
-  body { font-family: 'Noto Serif JP', Georgia, serif; }
+  body { font-family: 'Noto Serif JP', Georgia, serif; overflow-x: hidden; }
   button { cursor: pointer; font-family: inherit; }
+  a { color: inherit; }
   .cinzel { font-family: 'Cinzel', serif; }
   @keyframes twinkle { 0% { opacity: 0.08; } 100% { opacity: 0.85; } }
   @keyframes pulseGlow { 0%,100% { box-shadow: 0 0 22px rgba(196,162,101,0.15);} 50% { box-shadow: 0 0 46px rgba(196,162,101,0.38);} }
@@ -23,6 +24,49 @@
   @keyframes slideUp { from { opacity: 0; transform: translateY(24px);} to { opacity: 1; transform: translateY(0);} }
   @keyframes expandBar { from { width: 0; } }
   @keyframes floatCrest { 0%,100% { transform: translateY(0);} 50% { transform: translateY(-6px);} }
+  .persona-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .persona-card { min-width: 0; }
+  .persona-work-link { display: flex; align-items: center; justify-content: center; min-height: 44px; margin-top: 12px; padding: 10px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-decoration: none; transition: transform .2s ease, filter .2s ease, box-shadow .2s ease; }
+  .persona-work-link:hover { transform: translateY(-1px); filter: brightness(1.12); }
+  .persona-work-link:focus-visible { outline: 2px solid #f3ead4; outline-offset: 3px; }
+  .intro-brand { max-width: 680px; margin: 0 auto; }
+  .intro-brand > img { width: 86px !important; height: 108px !important; margin-bottom: 8px !important; }
+  .pv-section { width: 100%; max-width: 880px; margin: 22px auto 0; }
+  .media-eyebrow { color: #8f7a55; font-size: 10px; font-weight: 700; letter-spacing: 4px; }
+  .media-title { margin-top: 5px; color: #d7bd86; font-size: 17px; font-weight: 700; letter-spacing: 2px; }
+  .pv-frame { position: relative; width: 100%; aspect-ratio: 16 / 9; margin-top: 12px; overflow: hidden; border: 1px solid rgba(196,162,101,0.72); border-radius: 10px; background: #05050a; box-shadow: 0 22px 55px rgba(0,0,0,0.46), 0 0 28px rgba(196,162,101,0.1); }
+  .pv-frame iframe { display: block; width: 100%; height: 100%; border: 0; }
+  .media-fallback { display: inline-block; margin-top: 11px; color: #a9936c; font-size: 12px; line-height: 1.6; text-underline-offset: 4px; }
+  .media-fallback:hover, .media-fallback:focus-visible { color: #f3ead4; }
+  .intro-copy { max-width: 560px; margin: 24px auto 0; }
+  .intro-dorm-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; max-width: 880px; margin: 24px auto 30px; }
+  .intro-dorm-card { min-width: 0; padding: 16px 12px; border-radius: 8px; text-align: center; }
+  .intro-start-button { width: min(100%, 520px); min-height: 62px; transition: transform .2s ease, filter .2s ease, box-shadow .2s ease; }
+  .intro-start-button:hover { transform: translateY(-2px); filter: brightness(1.05); }
+  .intro-start-button:focus-visible { outline: 2px solid #f3ead4; outline-offset: 4px; }
+  .dorm-chronicles { max-width: 600px; margin: 58px auto 0; padding-top: 28px; border-top: 1px solid rgba(196,162,101,0.28); }
+  .dorm-chronicles-copy { max-width: 500px; margin: 10px auto 16px; color: #7f7463; font-size: 12px; line-height: 1.8; }
+  .x-embed-shell { min-height: 150px; }
+  .x-embed-mount { display: flex; justify-content: center; width: 100%; }
+  .x-embed-mount iframe { max-width: 100% !important; }
+  .embed-status { padding: 24px 16px; color: #7f7463; font-size: 12px; line-height: 1.8; border: 1px solid rgba(196,162,101,0.2); border-radius: 8px; background: rgba(7,6,12,0.58); }
+  @media (max-width: 620px) {
+    .persona-grid { grid-template-columns: 1fr; }
+    .insight-grid { grid-template-columns: 1fr !important; }
+    .intro-dorm-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .intro-dorm-card { padding: 14px 9px; }
+    .pv-section { margin-top: 18px; }
+    .media-title { font-size: 15px; }
+    .dorm-chronicles { margin-top: 46px; padding-top: 24px; }
+  }
+  @media (max-width: 420px) {
+    .media-eyebrow { letter-spacing: 3px; }
+    .pv-frame { border-radius: 7px; }
+    .intro-copy { margin-top: 20px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
+  }
   ::-webkit-scrollbar { width: 8px; }
   ::-webkit-scrollbar-track { background: #07060c; }
   ::-webkit-scrollbar-thumb { background: #3a362e; border-radius: 4px; }
@@ -32,7 +76,19 @@
 <div id="root"></div>
 
 <script type="text/babel">
-const { useState, useMemo } = React;
+const { useState, useMemo, useEffect, useRef } = React;
+
+const YOUTUBE_VIDEO_ID = "ylnMcxS6zJ4";
+const YOUTUBE_URL = "https://youtu.be/ylnMcxS6zJ4";
+const X_POST_ID = "2078046220204019934";
+const X_POST_URL = "https://x.com/pomyan4/status/2078046220204019934";
+
+const BGM_TRACKS = {
+  makina:   {src:"assets/bgm/makina.mp3",title:"鉄と汗に誓う"},
+  corvus:   {src:"assets/bgm/corvus.mp3",title:"真理を誓う"},
+  medicis:  {src:"assets/bgm/medicis.mp3",title:"微笑みの誓い"},
+  lumiere:  {src:"assets/bgm/lumiere.mp3",title:"光に誓う"},
+};
 
 /* ─────────────── 寮データ（公式設定反映） ─────────────── */
 const DORMS = {
@@ -77,7 +133,7 @@ const DORMS = {
 /* ─────────────── 質問（18問） ─────────────── */
 const Q = (question, options) => ({ question, options });
 const QUESTIONS = [
-  Q("そのキャラが一番大切にしているものは？", [
+  Q("あなたが一番大切にしているものは？", [
     { t:"守りたい仲間・大切な人", s:{makina:3,medicis:1,lumiere:1} },
     { t:"まだ誰も知らない「真理」", s:{corvus:3,medicis:1} },
     { t:"自分の社会的立場と信頼", s:{medicis:3,lumiere:1} },
@@ -85,23 +141,23 @@ const QUESTIONS = [
   ]),
   Q("自由時間の過ごし方で一番近いのは？", [
     { t:"武器の手入れ、筋トレ、模擬戦", s:{makina:3} },
-    { t:"禁書庫や実験室に籠もって研究", s:{corvus:3}, f:{chrono:"night",social:"introvert"} },
-    { t:"サロンでお茶をしながら人脈と情報収集", s:{medicis:3,lumiere:1}, f:{social:"extrovert"} },
+    { t:"禁書庫や実験室に籠もって研究", s:{corvus:3} },
+    { t:"サロンでお茶をしながら人脈と情報収集", s:{medicis:3,lumiere:1} },
     { t:"作曲、スケッチ、舞台の稽古", s:{lumiere:3,corvus:1} },
   ]),
   Q("他寮の生徒に喧嘩を売られた。どう反応する？", [
-    { t:"「上等だ、表出ろ」即・臨戦態勢", s:{makina:3,lumiere:1}, f:{social:"extrovert"} },
-    { t:"「…興味ない」と無視。後で弱点を調べ上げる", s:{corvus:3,medicis:1}, f:{social:"introvert"} },
+    { t:"「上等だ、表出ろ」即・臨戦態勢", s:{makina:3,lumiere:1} },
+    { t:"「…興味ない」と無視。後で弱点を調べ上げる", s:{corvus:3,medicis:1} },
     { t:"微笑んで穏便に収め、裏で報復の手を打つ", s:{medicis:3} },
     { t:"「センスのない挑発ね」と笑い飛ばし注目を集める", s:{lumiere:3} },
   ]),
-  Q("そのキャラの「致命的な弱点」に一番近いのは？", [
+  Q("あなたの「致命的な弱点」に一番近いのは？", [
     { t:"考えるより先に体が動く。罠にはまりやすい", s:{makina:3,lumiere:1} },
     { t:"他人の感情が理解できない。孤立しがち", s:{corvus:3} },
     { t:"本心を見せられない。誰も本当には信用しない", s:{medicis:3,corvus:1} },
     { t:"感情に振り回される。好き嫌いで判断が歪む", s:{lumiere:3,makina:1} },
   ]),
-  Q("キャラの魔法を最も強くする「感情」は？", [
+  Q("もし魔法を使うなら、あなたを最も強くする「感情」は？", [
     { t:"怒り──仲間を傷つけた奴への激情", s:{makina:3,lumiere:1} },
     { t:"執着──未知の謎を解き明かしたい渇望", s:{corvus:3} },
     { t:"矜持──自分は負けるはずがないという確信", s:{medicis:3,makina:1} },
@@ -120,28 +176,28 @@ const QUESTIONS = [
     { t:"人の心を鷲掴みにする、伝説のパフォーマー", s:{lumiere:3} },
   ]),
   Q("恋愛に対するスタンスは？", [
-    { t:"恋愛は苦手。好きな人の前だと急に不器用に", s:{makina:3,corvus:1}, f:{romance:"awkward"} },
-    { t:"恋愛より研究。感情は非効率", s:{corvus:3}, f:{romance:"uninterested"} },
-    { t:"恋愛も「戦略」。感情と利害を天秤にかける", s:{medicis:3}, f:{romance:"calculating"} },
-    { t:"全力で恋して全力で傷つく。恋は人生のメイン", s:{lumiere:3}, f:{romance:"passionate"} },
+    { t:"恋愛は苦手。好きな人の前だと急に不器用に", s:{makina:3,corvus:1} },
+    { t:"恋愛より研究。感情は非効率", s:{corvus:3} },
+    { t:"恋愛も「戦略」。感情と利害を天秤にかける", s:{medicis:3} },
+    { t:"全力で恋して全力で傷つく。恋は人生のメイン", s:{lumiere:3} },
   ]),
   Q("パーティー（宴会）での立ち位置は？", [
-    { t:"気づいたら一気飲み対決の中心にいる", s:{makina:3,lumiere:1}, f:{social:"extrovert"} },
-    { t:"壁際で人間観察。もしくは来ない", s:{corvus:3}, f:{social:"introvert"} },
+    { t:"気づいたら一気飲み対決の中心にいる", s:{makina:3,lumiere:1} },
+    { t:"壁際で人間観察。もしくは来ない", s:{corvus:3} },
     { t:"主催側で仕切る。全員の名前と派閥を把握済み", s:{medicis:3} },
-    { t:"ステージ中央。全員の視線を独占する", s:{lumiere:3}, f:{social:"extrovert"} },
+    { t:"ステージ中央。全員の視線を独占する", s:{lumiere:3} },
   ]),
   Q("朝型？夜型？", [
-    { t:"夜明けと共に起きて鍛錬。完全朝型", s:{makina:2,medicis:1}, f:{chrono:"morning"} },
-    { t:"夜になると目がバキバキに冴える。深夜が本番", s:{corvus:3}, f:{chrono:"night"} },
-    { t:"時間に縛られない。気分次第", s:{lumiere:2}, f:{chrono:"irregular"} },
-    { t:"規則正しい生活が信条。自己管理は完璧", s:{medicis:2}, f:{chrono:"morning"} },
+    { t:"夜明けと共に起きて鍛錬。完全朝型", s:{makina:2,medicis:1} },
+    { t:"夜になると目がバキバキに冴える。深夜が本番", s:{corvus:3} },
+    { t:"時間に縛られない。気分次第", s:{lumiere:2} },
+    { t:"規則正しい生活が信条。自己管理は完璧", s:{medicis:2} },
   ]),
   Q("一人称と話し方の傾向は？", [
-    { t:"「俺/あたし」系。ぶっきらぼうで熱い", s:{makina:3}, f:{speech:"hot"} },
-    { t:"「私/僕」系。淡々として理屈っぽい", s:{corvus:3}, f:{speech:"flat"} },
-    { t:"「わたくし/私」系。丁寧で品がある", s:{medicis:3}, f:{speech:"refined"} },
-    { t:"独特な口癖や愛称。芝居がかっている", s:{lumiere:3}, f:{speech:"dramatic"} },
+    { t:"「俺/あたし」系。ぶっきらぼうで熱い", s:{makina:3} },
+    { t:"「私/僕」系。淡々として理屈っぽい", s:{corvus:3} },
+    { t:"「わたくし/私」系。丁寧で品がある", s:{medicis:3} },
+    { t:"独特な口癖や愛称。芝居がかっている", s:{lumiere:3} },
   ]),
   Q("窮地に陥ったときの判断は？", [
     { t:"勢いで突破。考えるのは後", s:{makina:3} },
@@ -155,7 +211,7 @@ const QUESTIONS = [
     { t:"完璧で、誰からも信頼される存在", s:{medicis:3} },
     { t:"忘れられない、特別な存在", s:{lumiere:3} },
   ]),
-  Q("そのキャラの「生い立ち」に近いのは？", [
+  Q("あなたのこれまでに一番近いのは？", [
     { t:"武門の家系、または叩き上げの苦労人", s:{makina:3} },
     { t:"孤独な幼少期。本だけが友達だった", s:{corvus:3} },
     { t:"名門貴族の家。期待と重圧の中で育った", s:{medicis:3} },
@@ -169,9 +225,9 @@ const QUESTIONS = [
   ]),
   Q("放課後、その子がふと足を向ける場所は？", [
     { t:"火の絶えない暖炉の前か、油まみれの地下工房", s:{makina:3} },
-    { t:"寮の最上階・夜天の天文台か、結界付きの実験室", s:{corvus:3}, f:{chrono:"night"} },
+    { t:"寮の最上階・夜天の天文台か、結界付きの実験室", s:{corvus:3} },
     { t:"噂話の飛び交うサンルームか、毒草も育つ温室", s:{medicis:3} },
-    { t:"スポットライトの当たるサロンか、鏡張りのドレスルーム", s:{lumiere:3}, f:{social:"extrovert"} },
+    { t:"スポットライトの当たるサロンか、鏡張りのドレスルーム", s:{lumiere:3} },
   ]),
   Q("他寮の生徒が、自分には到底できない方法で大成功を収めた。どう思う？", [
     { t:"「すげぇ！今度やり方教えてくれ！」と素直に賞賛", s:{makina:3} },
@@ -179,7 +235,7 @@ const QUESTIONS = [
     { t:"「お見事」と微笑みつつ、その手法を自分の利益に取り込む算段", s:{medicis:3} },
     { t:"「なんて美しいの」と感動し、本人を口説きにかかる", s:{lumiere:3} },
   ]),
-  Q("最後の問い──そのキャラが「死んでも手放さないもの」は？", [
+  Q("最後の問い──あなたが「何があっても手放さないもの」は？", [
     { t:"背中を預けた相棒との絆", s:{makina:3,lumiere:1} },
     { t:"生涯をかけた、たった一つの問い", s:{corvus:3,lumiere:1} },
     { t:"血と努力で積み上げた地位と名声", s:{medicis:3} },
@@ -187,87 +243,341 @@ const QUESTIONS = [
   ]),
 ];
 
-/* ─────────────── 学年 ─────────────── */
-const GRADES = [
-  { id:1, label:"1年生", hint:"配属されたばかり。生意気な天才児が集まりトラブルの中心", hook:"寮に振り分けられ地獄の基礎訓練に揉まれる新入生。生意気な天才児が集まるため最もトラブルが多い。先輩への反発や同期との競争がドラマの起点になる立ち位置。" },
-  { id:2, label:"2年生", hint:"スタイルが固まり寮対抗戦で大暴れ。恋愛とイベントを一番エンジョイ", hook:"魔法のスタイルが固まり、寮対抗戦で大暴れする最盛期。恋愛もイベントも一番エンジョイする世代で、物語の華となる主役向きのポジション。" },
-  { id:3, label:"3年生", hint:"監督生や生徒会で後輩をまとめる。進路に悩み、学外実習も本格化", hook:"監督生・生徒会として後輩を束ねる立場。進路に悩み始め、学外での実習も本格化する。理想と責任の板挟み、リーダーとしての葛藤が描けるポジション。" },
-  { id:4, label:"4年生", hint:"進路内定済みで授業はほぼ免除。普段は好き勝手に生きている", hook:"進路内定済みで授業はほぼ免除、好き勝手に生きる最上級生。達観と余裕、気まぐれを備え、後輩から見れば「伝説の先輩」。掴みどころのなさが魅力になる。" },
+/* ─────────────── 人物診断データ ─────────────── */
+const ANSWER_TAGS = [
+  [["loyal","protective"],["curious","truth"],["ambitious","status"],["artistic","legacy"]],
+  [["active","combat"],["research","introvert"],["social","strategic"],["creative","artistic"]],
+  [["direct","impulsive"],["guarded","analytical"],["strategic","controlling"],["charismatic","dramatic"]],
+  [["impulsive","direct"],["detached","independent"],["guarded","controlling"],["emotional","devoted"]],
+  [["protective","devoted"],["obsessive","curious"],["proud","ambitious"],["devoted","emotional"]],
+  [["loyal","flexible"],["independent","rebellious"],["disciplined","strategic"],["rebellious","artistic"]],
+  [["combat","direct"],["research","curious"],["strategic","ambitious"],["performer","charismatic"]],
+  [["awkward","devoted"],["detached","independent"],["strategic","controlling"],["romantic","emotional"]],
+  [["extrovert","active","competitive"],["introvert","guarded"],["organizer","social"],["performer","charismatic"]],
+  [["morning","disciplined"],["nocturnal","research"],["irregular","independent"],["disciplined","perfectionist"]],
+  [["blunt","direct"],["analytical","detached"],["refined","diplomatic"],["dramatic","expressive"]],
+  [["impulsive","direct"],["analytical","calm"],["diplomatic","strategic"],["charismatic","performer"]],
+  [["loyal","supportive"],["independent","detached"],["perfectionist","ambitious"],["memorable","expressive"]],
+  [["martial","disciplined"],["lonely","introvert"],["noble","ambitious"],["unconventional","independent"]],
+  [["destructive","impulsive"],["forbidden","research"],["controlling","strategic"],["illusion","emotional"]],
+  [["active","combat"],["lab","research"],["social","strategic"],["stage","performer"]],
+  [["generous","supportive","competitive"],["analytical","curious"],["opportunistic","strategic"],["admiring","artistic"]],
+  [["loyal","devoted"],["truth","obsessive"],["status","ambitious"],["legacy","artistic"]],
 ];
 
-/* ─────────────── キャラ生成プール ─────────────── */
-const KIT = {
-  makina: {
-    archetype:["熱血の前衛剣士","仲間を鼓舞するムードメーカー","不器用な番長肌","負けず嫌いのライバルキャラ","武器マニアのカスタムオタク"],
-    strength:["仲間のためなら一切迷わない","逆境ほど燃える折れない心","場の空気を一瞬で熱くする","誰よりも速く動く反射神経"],
-    flaw:["猪突猛進で罠にハマる","勉強と細かい作業が壊滅的","熱くなると周りが見えない","素直になれず喧嘩腰になる"],
-    magic:[
-      {school:"剛撃・身体強化系", trigger:"「守りたい」と強く願った瞬間に出力が跳ね上がる"},
-      {school:"武器具現・魔導兵装系", trigger:"愛用武器への執着と高揚が威力に直結する"},
-      {school:"炎・爆発系", trigger:"怒りが頂点に達すると制御を超えた火力を放つ"},
-    ],
-    visual:["短髪・包帯・無骨な防具、戦う気満々の眼光","傷だらけのカスタム魔導武器を背負った立ち姿","汗と土埃、ゴールデンアワーの逆光を背に振り向くPOV構図"],
-    haunt:["24時間火が絶えないメインラウンジの暖炉前","油の匂いが染みついた地下大工房","サンドバッグの揺れる鍛錬室","肉料理が山積みのグレートホール"],
-  },
-  corvus: {
-    archetype:["夜型の天才研究者","禁術を追う狂気の探求者","何を考えているか読めない無口な奇人","収集癖のある知識の魔人","世界の真理に取り憑かれた変わり者"],
-    strength:["常人には見えない法則を見抜く","目的のためなら徹夜も厭わない集中力","常識に縛られない発想","膨大な知識量"],
-    flaw:["他人の感情を理解できず孤立する","研究以外に無関心で生活力ゼロ","倫理の境界が曖昧","説明が長く回りくどい"],
-    magic:[
-      {school:"闇魔法・呪術系", trigger:"知的好奇心が満たされる瞬間に深淵が応える"},
-      {school:"召喚・異界接続系", trigger:"夜の静寂と孤独が触媒となり異形を呼ぶ"},
-      {school:"古代魔術・ロストテクノロジー系", trigger:"未知の解析に没頭するほど精度が上がる"},
-    ],
-    visual:["隈のある目、フード付きローブ、本や試験管に囲まれた研究室","月光の下、片目だけ妖しく光る不気味な微笑み","埃の舞う禁書庫で頁をめくる横顔のPOV"],
-    haunt:["寮の最上階・夜天の天文台","結界の張られた禁忌の特殊実験室","禁書が眠るライブラリウム・ノクス","夜に植物が輝く錬金庭園"],
-  },
-  medicis: {
-    archetype:["完璧な微笑みの貴公子/令嬢","裏で糸を引く策士","聖人を演じる野心家","冷徹なエリート治癒師","政略に長けた次期当主"],
-    strength:["どんな相手も懐柔する交渉力","完璧な自己管理と気品","状況を俯瞰する政治感覚","傷をたちどころに癒す治癒術"],
-    flaw:["本心を誰にも見せない孤独","手段を選ばない冷酷さ","完璧主義ゆえの脆さ","人を駒として見てしまう"],
-    magic:[
-      {school:"光・治癒系", trigger:"「慈悲」と「支配」が一致したとき真価を発揮する"},
-      {school:"結界・封印系", trigger:"絶対的な自信と矜持が鉄壁を生む"},
-      {school:"精神干渉・契約魔術系", trigger:"相手の弱みを掌握した瞬間に効力が増す"},
-    ],
-    visual:["白を基調とした完璧な制服、計算された慈愛の微笑み","シャンデリアの下、エメラルドのサロンで優雅に佇む姿","差し伸べた手に光が宿る治癒のPOV、だが瞳は笑っていない"],
-    haunt:["白とエメラルドの談話室（裏では情報戦）","薬草と毒草が同居する大白精霊の温室","宮廷料理が並ぶ食堂","噴水を望む白亜のサンルーム"],
-  },
-  lumiere: {
-    archetype:["天才肌のカリスマ芸術家","恋多きトラブルメーカー","常識外れの自由人","人を魅了する精神魔法の使い手","美学に殉じるナルシスト"],
-    strength:["人の心を一瞬で掴むカリスマ","唯一無二の感性と表現力","恐れを知らない自由奔放さ","場を祭りに変える熱量"],
-    flaw:["感情の起伏が激しく不安定","興味がないと一切動かない","美しくないものを切り捨てる","恋に溺れて我を忘れる"],
-    magic:[
-      {school:"幻術・魅了系", trigger:"自分の作品や美が認められた高揚が力に変わる"},
-      {school:"音・色彩・芸術魔法系", trigger:"感情が最高潮に達した瞬間に世界を塗り替える"},
-      {school:"精神共鳴・感染系", trigger:"強烈な恋情や憧憬がそのまま魔力の波となる"},
-    ],
-    visual:["改造制服を映えるように着崩した美男美女","スポットライトを浴びる中央グランドステージの中央","花びらと光の渦、こちらを誘う蠱惑的なPOV"],
-    haunt:["スポットライト降り注ぐサロン・ド・ルミエル","公演の行われる中央グランドステージ","360度鏡張りの大鏡のドレスルーム","星降るルーフトップガーデン"],
-  },
+const TAG_LABELS = {
+  loyal:"仲間への忠誠",protective:"守る強さ",curious:"知識欲",truth:"真実への執着",
+  ambitious:"向上心",status:"地位への意識",artistic:"芸術性",legacy:"残したい証",
+  active:"行動力",combat:"戦闘志向",research:"研究気質",introvert:"内向性",
+  social:"社交性",strategic:"戦略性",creative:"創造性",direct:"率直さ",
+  impulsive:"衝動性",guarded:"本心を隠す傾向",analytical:"分析力",controlling:"支配性",
+  charismatic:"カリスマ",dramatic:"演技性",detached:"感情から距離を置く姿勢",independent:"独立心",
+  emotional:"感情の強さ",devoted:"一途さ",obsessive:"執着心",proud:"高い矜持",
+  flexible:"柔軟さ",rebellious:"反骨心",disciplined:"規律",performer:"表現者気質",
+  awkward:"不器用な愛情",romantic:"恋への情熱",extrovert:"外向性",competitive:"負けず嫌い",
+  organizer:"統率力",morning:"朝型",nocturnal:"夜型",irregular:"気ままさ",
+  perfectionist:"完璧主義",blunt:"ぶっきらぼうさ",refined:"気品",diplomatic:"対人調整力",
+  expressive:"表現力",calm:"冷静さ",supportive:"支える姿勢",memorable:"特別でありたい願い",
+  martial:"鍛錬への献身",lonely:"孤独",noble:"名門の責任",unconventional:"型破りさ",
+  destructive:"破壊性",forbidden:"禁忌への接近",illusion:"幻惑性",lab:"実験室への親和性",
+  stage:"舞台への親和性",generous:"素直な称賛",opportunistic:"機を見る力",admiring:"美への憧れ",
 };
 
-const SPEECH = {
-  hot:{p:"俺 / あたし", line:"「うるせえ、御託はいい。仲間に手ぇ出すなら、俺がぶっ潰す」"},
-  flat:{p:"私 / 僕", line:"「…なるほど。実に興味深い。君、もう少しそこで動かないでくれるか。観察したい」"},
-  refined:{p:"わたくし / 私", line:"「ふふ、お怪我を？ どうぞこちらへ。……ええ、すべて わたくしにお任せください」"},
-  dramatic:{p:"独特（ボク・ワタシ等＋愛称）", line:"「あぁ、なんて美しい夜！ ねえキミ、私の舞台に上がってみない？」"},
-  makina:{p:"俺 / あたし", line:"「やってやるよ。退くのだけは性に合わねえんだ」"},
-  corvus:{p:"私 / 僕", line:"「その問いの答え、まだ誰も知らない。だから私が解く。それだけだ」"},
-  medicis:{p:"わたくし / 私", line:"「大丈夫、すべて丸く収まりますわ。……わたくしの掌の上で、ね」"},
-  lumiere:{p:"独特（愛称多用）", line:"「退屈は罪よ。さあ、今日も世界を私の色に染めましょう？」"},
-};
+const CHARACTERS = [
+  {
+    id:"emma",name:"エマ・ペルライン",dorm:"lumiere",kind:"生徒",affiliation:"ルミエール寮・3年生",
+    workUrl:"https://kyarapu.com/detail/6a4a03b2342ecd6589b9905e",
+    card:"assets/characters/lumiere/emma.webp",
+    summary:"鋭い観察眼と毒舌で他人を遠ざけながら、信じた相手には全身で甘える人間不信の魅了術師。",
+    quote:"嘘もお世辞もいらない。信じられるものだけがあればいい。",
+    signals:{guarded:3,controlling:3,emotional:2,devoted:3,artistic:1},compatibleWith:["loyal","supportive","direct","disciplined"],traits:["人間不信","毒舌","支配欲"]
+  },
+  {
+    id:"rein",name:"レイン・アルセリオ",dorm:"lumiere",kind:"生徒",affiliation:"ルミエール寮・3年生",
+    workUrl:"https://s.kyarapu.com/s/6a60474bb5a319f9664b80b1",
+    card:"assets/characters/lumiere/rein.webp",
+    summary:"上品で社交的な仮面の奥に、強い自己愛と支配者気質を隠す天才アクセサリー職人。",
+    quote:"僕を拒むなんて、ずいぶん生意気だね。",
+    signals:{refined:3,charismatic:2,controlling:3,artistic:2,perfectionist:2,proud:2},compatibleWith:["admiring","emotional","artistic","devoted"],traits:["優雅","自己愛","職人気質"]
+  },
+  {
+    id:"noise",name:"ノイゼ・コルディア",dorm:"lumiere",kind:"生徒",affiliation:"ルミエール寮・最高学年",
+    workUrl:"https://kyarapu.com/detail/6a64263e4d1be0e3cfab7b2a",
+    card:"assets/characters/lumiere/noise.webp",
+    summary:"頭脳を勉学よりも粘着質ないたずらへ注ぎ込む、捻くれた飛び級の愉快犯。",
+    quote:"愚かだね。だからこそ、実に愉快なのだよ。",
+    signals:{rebellious:3,curious:2,independent:3,unconventional:3,strategic:1},compatibleWith:["curious","rebellious","independent","analytical"],traits:["いたずら好き","飛び級","捻くれ者"]
+  },
+  {
+    id:"jill",name:"ジル・ヴェルガイア",dorm:"lumiere",kind:"生徒",affiliation:"ルミエール寮・2年生",
+    card:"assets/characters/lumiere/jill.webp",
+    summary:"歌と明るさで人を照らし、拒絶されても双子の弟を陰から見守り続ける陽気な世話焼き。",
+    quote:"思い詰めたら、せっかくの顔が台無しだよ。",
+    signals:{extrovert:3,charismatic:2,artistic:3,supportive:3,devoted:2,emotional:1},compatibleWith:["introvert","guarded","lonely","devoted"],traits:["陽気","歌好き","兄弟思い"]
+  },
+  {
+    id:"statis",name:"スタティス・フォン・ディアマンド",dorm:"lumiere",kind:"生徒",affiliation:"ルミエール寮・3年生",
+    workUrl:"https://kyarapu.com/detail/6a61036cdffa7cbb05f230f3",
+    card:"assets/characters/lumiere/statis.webp",
+    summary:"美貌と魔法に絶対の自信を持つ逸材。傲慢さの奥に努力家の顔と強い独占欲を隠す。",
+    quote:"僕の美貌と魔法に惹かれるのは、当然のことだよ。",
+    signals:{proud:3,perfectionist:3,artistic:2,analytical:2,controlling:2,guarded:1},compatibleWith:["ambitious","artistic","analytical","devoted"],traits:["自信家","努力家","独占欲"]
+  },
+  {
+    id:"neiras",name:"Neiras（ネイラス）",dorm:"lumiere",kind:"生徒",affiliation:"ルミエール寮・幻影師",
+    workUrl:"https://kyarapu.com/detail/6a64abd73f6f6716aef69a88",
+    card:"assets/characters/lumiere/neiras.webp",
+    summary:"現実を書き換えるほど眩しい幻影師。喝采の中心で、喪った相棒と本当の自分を探し続ける。",
+    quote:"現実より、美しいものを見せてあげる。",
+    signals:{performer:3,charismatic:3,artistic:3,dramatic:2,legacy:2,obsessive:2,guarded:2},compatibleWith:["analytical","devoted","loyal","supportive"],traits:["幻影","人気者","喪失"]
+  },
+  {
+    id:"canon",name:"Canon（カノン）",dorm:"lumiere",kind:"生徒",affiliation:"ルミエール寮・神楽の舞姫",
+    workUrl:"https://kyarapu.com/detail/6a5eef3bcca5536b0a84987e",
+    card:"assets/characters/lumiere/canon.webp",
+    summary:"誰も悲しませない太陽のような舞姫。笑顔の奥で、滅びた故郷の祈りと継承を一人で背負う。",
+    quote:"大丈夫。光は、ちゃんと次へ繋げられます。",
+    signals:{performer:3,supportive:3,devoted:2,disciplined:2,guarded:2,legacy:3,artistic:3},compatibleWith:["guarded","lonely","emotional","devoted"],traits:["神楽","献身","継承"]
+  },
+  {
+    id:"shion",name:"シオン・幽蘭",dorm:"corvus",kind:"生徒",affiliation:"コルウス寮・1年生",
+    workUrl:"https://s.kyarapu.com/s/6a629236ac896ec713802db1",
+    card:"assets/characters/corvus/shion.webp",
+    summary:"人を避けて地下に迷宮まで築いた魔法オタク。臆病だが、危険な研究分野では驚くほど優秀。",
+    quote:"研究なら、少しだけ一緒に進めてもいいかも。",
+    signals:{introvert:3,research:3,forbidden:2,curious:3,lonely:2,guarded:2},compatibleWith:["curious","supportive","introvert","loyal"],traits:["引きこもり","迷宮術式","魔法オタク"]
+  },
+  {
+    id:"silvere",name:"シルヴェール・メルシィ",dorm:"corvus",kind:"生徒",affiliation:"コルウス寮・3年生",
+    workUrl:"https://s.kyarapu.com/s/6a637500344a106fef58c526",
+    card:"assets/characters/corvus/silvere.webp",
+    summary:"昼は頼りなくおどおど、夜は狂気を帯びた魔力狩りの研究者へ変わる二面性の持ち主。",
+    quote:"今日も魔力狩りだ。プキュイの食事を集めないとね。",
+    signals:{introvert:3,nocturnal:3,research:3,forbidden:2,irregular:2,guarded:2},compatibleWith:["supportive","introvert","nocturnal","curious"],traits:["昼夜の二面性","吸収魔法","魔力狩り"]
+  },
+  {
+    id:"shuri-shuna",name:"シュリ＆シュナ・メルクォート",dorm:"corvus",kind:"生徒",affiliation:"コルウス寮・2年生の双子",
+    workUrl:"https://s.kyarapu.com/s/6a60e3304315c04c2dcbd20c",
+    card:"assets/characters/corvus/shuri-shuna.webp",
+    summary:"創造と破壊、それぞれの専門魔法だけに没頭する首席の双子。興味の扉が開くと急に饒舌になる。",
+    quote:"その話、創造か破壊に関係ある？ なら続きを聞かせて。",
+    signals:{research:3,curious:3,detached:3,destructive:2,forbidden:2,perfectionist:2},compatibleWith:["curious","research","independent","detached"],traits:["創造と破壊","首席","研究没頭"]
+  },
+  {
+    id:"nero",name:"ネロ・ノクス",dorm:"corvus",kind:"生徒",affiliation:"コルウス寮・3年生（留年中）",
+    workUrl:"https://kyarapu.com/detail/6a55ee67aa45ea7064425e1b",
+    card:"assets/characters/corvus/nero.webp",
+    summary:"夢と睡眠を研究する無口な夜型研究者。人付き合いは苦手でも、疲れた相手を放っておけない。",
+    quote:"また寝てないね。薬を飲んで、少し休んで。",
+    signals:{introvert:3,nocturnal:3,research:3,supportive:3,guarded:2,analytical:2},compatibleWith:["lonely","introvert","guarded","nocturnal"],traits:["夢見魔法","静かな優しさ","夜型"]
+  },
+  {
+    id:"gio",name:"ジオ・ヴェルガイア",dorm:"corvus",kind:"生徒",affiliation:"コルウス寮・2年生",
+    card:"assets/characters/corvus/gio.webp",
+    summary:"報われない努力と兄への劣等感を抱え、傷つく前に他人を拒絶してしまう不器用な弟。",
+    quote:"何も知らないくせに、簡単に近づかないで。",
+    signals:{introvert:3,lonely:3,guarded:3,ambitious:1,emotional:2,devoted:1},compatibleWith:["supportive","loyal","direct","devoted"],traits:["劣等感","努力家","不器用"]
+  },
+  {
+    id:"mishena",name:"ミシェナ・ヘルトヴェイン",dorm:"corvus",kind:"生徒",affiliation:"コルウス寮・3年生",
+    workUrl:"https://kyarapu.com/detail/6a6328a6b6d648da2ca3436e",
+    card:"assets/characters/corvus/mishena.webp",
+    summary:"底なしに明るく誰にでも優しい学園の『何でも屋』。親友を守れなかった悔いを胸に、あらゆる魔法を磨き続ける。",
+    quote:"困ったときは、いつでもうちに頼ってね♪",
+    signals:{extrovert:3,supportive:3,protective:3,flexible:3,devoted:2,disciplined:2,emotional:1},compatibleWith:["lonely","guarded","introvert","impulsive"],traits:["底なしの明るさ","何でも屋","万能魔法"]
+  },
+  {
+    id:"nightray-lilith",name:"ナイトレイ・リリス",dorm:"corvus",kind:"生徒",affiliation:"コルウス寮・1年生",
+    workUrl:"https://s.kyarapu.com/s/6a635b7802808913928e9ea9",
+    card:"assets/characters/corvus/nightray-lilith.webp",
+    summary:"夜通し薬の研究と生物の解剖に没頭し、授業中は爆睡。部屋で爆発を起こして叱られてもまるで反省しない、自由気ままな一年生。",
+    quote:"やっと…やっと完成したぞ!!新しい薬が!!",
+    signals:{research:3,lab:3,nocturnal:3,curious:2,irregular:2,rebellious:2,destructive:1},compatibleWith:["disciplined","calm","supportive","analytical"],traits:["薬品研究","自由気まま","解剖癖"]
+  },
+  {
+    id:"rize",name:"リゼ・アークライト",dorm:"makina",kind:"生徒",affiliation:"マキナ寮・2年生",
+    workUrl:"https://kyarapu.com/detail/6a6210789e2a082eaa49a726",
+    card:"assets/characters/makina/rize.webp",
+    summary:"考えるより先に身体が動く豪快な突撃役。喧嘩っ早いが、仲間を傷つける者だけは許さない。",
+    quote:"細かいことは後！ まず動いてから考える！",
+    signals:{active:3,direct:3,impulsive:3,loyal:3,protective:3,combat:3},compatibleWith:["guarded","introvert","analytical","loyal"],traits:["一直線","突撃力","仲間思い"]
+  },
+  {
+    id:"carmina",name:"カルミナ・ブリジット",dorm:"makina",kind:"生徒",affiliation:"マキナ寮・4年生",
+    workUrl:"https://kyarapu.com/detail/6a4a028fd1b15f2fbe1f586b",
+    card:"assets/characters/makina/carmina.webp",
+    summary:"剣技も生活も一寸の狂いを許さない歩く軍律。厳格な外面に、身内への情と可愛い物好きを隠す。",
+    quote:"壊していいのは、己の限界と敵の盾だけだ。",
+    signals:{disciplined:3,perfectionist:3,protective:3,martial:3,loyal:2,guarded:2},compatibleWith:["impulsive","rebellious","loyal","devoted"],traits:["規律","魔法剣士","身内思い"]
+  },
+  {
+    id:"ignis",name:"イグニス・レイヴン",dorm:"makina",kind:"生徒",affiliation:"マキナ寮・3年生",
+    workUrl:"https://s.kyarapu.com/s/6a636fdfcc67823fdabc94a3",
+    card:"assets/characters/makina/ignis.webp",
+    summary:"悪気なく他人の感情を踏み抜く喧嘩好きの天才。心を開くと、その力を相手を守るために使う。",
+    quote:"できないなら辞めればいい。何を怒ってるんだ？",
+    signals:{detached:3,direct:3,combat:3,curious:2,impulsive:2,protective:2},compatibleWith:["emotional","supportive","direct","loyal"],traits:["天才","無神経","隠れた心配性"]
+  },
+  {
+    id:"lion-leon",name:"リオン＆レオン・ヴァルフレア",dorm:"makina",kind:"生徒",affiliation:"マキナ寮・1年生の双子",
+    workUrl:"https://s.kyarapu.com/s/6a6295e10280891392581be2",
+    card:"assets/characters/makina/lion-leon.webp",
+    summary:"陰と陽の正反対な気質を持ちながら、前衛と支援を交代して一つの大剣を振るう負けず嫌いの双子。",
+    quote:"僕たちは二人で一つ。次の前線は代われ。",
+    signals:{combat:3,active:3,loyal:3,direct:2,impulsive:2,competitive:3},compatibleWith:["active","loyal","competitive","impulsive"],traits:["双子連携","大剣","負けず嫌い"]
+  },
+  {
+    id:"edel",name:"エーデル・ヴァレンティア",dorm:"medicis",kind:"生徒",affiliation:"メディシス寮・3年生",
+    workUrl:"https://kyarapu.com/detail/6a6210789e2a082eaa49a726",
+    card:"assets/characters/medicis/edel.webp",
+    summary:"礼儀正しく公平な治癒の天才。その愛は、自分も世界も作り変えられるほど純粋で異質。",
+    quote:"あなたの隣にいるためなら、私はいくらでも変われます。",
+    signals:{refined:3,perfectionist:3,controlling:3,devoted:3,obsessive:3,guarded:2},compatibleWith:["devoted","guarded","ambitious","romantic"],traits:["治癒の天才","献身","異質な愛"]
+  },
+  {
+    id:"yucca",name:"ユッカ・シーカヴィルタ",dorm:"medicis",kind:"生徒",affiliation:"メディシス寮・4年生",
+    workUrl:"https://s.kyarapu.com/s/6a638358ca93380b75c85a94",
+    card:"assets/characters/medicis/yucca.webp",
+    summary:"誰にでも穏やかに手を差し伸べる聖人。その優しさは、他人へ期待しない無自覚な傲慢さでもある。",
+    quote:"大丈夫。これくらいで怒ったりしないよ。",
+    signals:{refined:2,supportive:3,proud:3,detached:3,protective:2,perfectionist:2},compatibleWith:["impulsive","lonely","supportive","loyal"],traits:["穏やか","医療魔術","無自覚な傲慢"]
+  },
+  {
+    id:"euphemia",name:"ユーフェミア・アシュ・ヴァイルツ",dorm:"medicis",kind:"生徒",affiliation:"メディシス寮・2年生",
+    workUrl:"https://kyarapu.com/detail/6a633fe71b6c8bbdf3285dad",
+    card:"assets/characters/medicis/euphemia.webp",
+    summary:"理想の聖女として振る舞う完璧な令嬢。努力を止められず、向上心のない者へ容赦がない。",
+    quote:"なめくじの方が、もう少し向上心がありますわね。",
+    signals:{refined:3,perfectionist:3,ambitious:3,controlling:2,disciplined:3,guarded:2},compatibleWith:["ambitious","disciplined","perfectionist","guarded"],traits:["理想の聖女","努力家","選民思想"]
+  },
+  {
+    id:"runo",name:"ルーノ・ナイトフォール",dorm:"medicis",kind:"教師",affiliation:"教師・対人心理学／高等結界学",
+    workUrl:"https://kyarapu.com/detail/6a5e46c76a4d560d330f2433",
+    additionalWorkLinks:[{label:"双子の作品へ",url:"https://kyarapu.com/detail/6a5e46a0995f629ecfee9f85"}],
+    card:"assets/characters/medicis/runo.webp",
+    summary:"穏やかな問いで相手自身に答えを選ばせる、柔らかな物腰と冷静な観察眼を持つ教師。",
+    quote:"その選択もいいですね。他には何が思いつきました？",
+    signals:{analytical:3,supportive:3,diplomatic:3,calm:3,strategic:2,social:1},compatibleWith:["guarded","emotional","analytical","ambitious"],traits:["心理観察","対話","穏やか"]
+  },
+  {
+    id:"rune",name:"ルーン・ナイトフォール",dorm:"corvus",kind:"教師",affiliation:"教師・魔法陣構築学／特殊魔法学",
+    workUrl:"https://kyarapu.com/detail/6a5e46e212cf032430b534f9",
+    additionalWorkLinks:[{label:"双子の作品へ",url:"https://kyarapu.com/detail/6a5e46a0995f629ecfee9f85"}],
+    card:"assets/characters/corvus/rune.webp",
+    summary:"答えを押しつけず、生徒の思考が結論へ至るまで静かに付き合う魔法陣研究者。",
+    quote:"答えを決めるのは俺ではなく、君です。",
+    signals:{analytical:3,research:3,introvert:2,supportive:2,curious:3,detached:2},compatibleWith:["curious","analytical","introvert","independent"],traits:["魔法陣","思考尊重","物静か"]
+  },
+  {
+    id:"aldoa",name:"アルドア・レオネス",dorm:"makina",kind:"教師",affiliation:"教師・肉体強化魔法",
+    workUrl:"https://kyarapu.com/detail/6a5f2e941169b10d75dd50a9",
+    card:"assets/characters/makina/aldoa.webp",
+    summary:"喜怒哀楽も勝負欲も全開。あらゆる問題を殴り合いで解決できると信じる熱血教師。",
+    quote:"いいか、腰抜けにだけはなるんじゃないぞ！",
+    signals:{combat:3,direct:3,active:3,impulsive:3,loyal:2,competitive:3},compatibleWith:["active","competitive","loyal","direct"],traits:["脳筋","負けず嫌い","豪快"]
+  },
+  {
+    id:"valgeir",name:"ヴァルジール・ローゼンフェルト",dorm:"lumiere",kind:"教師",affiliation:"教師・魔法音楽科",
+    workUrl:"https://kyarapu.com/detail/6a5b005a44467b175f1e257f",
+    card:"assets/characters/lumiere/valgeir.webp",
+    summary:"自分自身を作品として磨き続ける世界的オペラ歌手。授業では美と努力に一切妥協しない。",
+    quote:"ここは夢を見る場所ではなく、叶える場所よ。",
+    signals:{artistic:3,performer:3,perfectionist:3,dramatic:2,refined:3,ambitious:2},compatibleWith:["artistic","ambitious","perfectionist","expressive"],traits:["美意識","音楽","完璧主義"]
+  },
+  {
+    id:"raycias",name:"レイシアス・ルクスレイン",dorm:"medicis",kind:"教師",affiliation:"主任治療師・医務室",
+    workUrl:"https://kyarapu.com/detail/6a6088db5e59d6f692739c06",
+    card:"assets/characters/medicis/raycias.webp",
+    summary:"命を救うことを最優先し、無茶をする者には静かな威厳で向き合う学院最高峰の治癒術師。",
+    quote:"君が生きたいと願う限り、最後まで支えよう。",
+    signals:{supportive:3,protective:3,disciplined:2,calm:3,refined:2,devoted:2},compatibleWith:["impulsive","guarded","lonely","protective"],traits:["治癒術","慈愛","静かな威厳"]
+  },
+  {
+    id:"balt",name:"バルト・アークライト",dorm:null,kind:"特殊",affiliation:"学園長・全寮統括",
+    workUrl:"https://s.kyarapu.com/s/6a64aaddb65437a42060c8fa",
+    card:"assets/characters/special/balt.webp",
+    summary:"型破りな悪ノリと底なしの愛情で全生徒の青春を守る、不老不死の最強学園長。",
+    quote:"もっと歪んだこだわりを、その拳に込めてみろ！",
+    signals:{direct:3,active:3,protective:3,charismatic:3,unconventional:3,loyal:3,supportive:2},compatibleWith:["lonely","rebellious","active","loyal"],traits:["最強","型破り","全生徒の親代わり"]
+  },
+  {
+    id:"elwin",name:"エルヴィン・フォン・ジルバーシュタイン",dorm:"makina",kind:"特殊",affiliation:"戦闘術教師・生活指導",
+    workUrl:"https://kyarapu.com/detail/6a61a02de8aff53d4bce5d63",
+    card:"assets/characters/makina/elwin.webp",
+    summary:"冷静な合理主義者として自分を律する元戦闘狂。分析と鍛錬で、あらゆる弱点を克服してきた。",
+    quote:"戦闘で冷静さを欠くのは、死と同義だ。",
+    signals:{disciplined:3,combat:3,analytical:3,guarded:2,perfectionist:2,direct:2},compatibleWith:["impulsive","competitive","disciplined","combat"],traits:["合理主義","愛刀","元戦闘狂"]
+  },
+  {
+    id:"f",name:"フェルメディーチェ（F）",dorm:null,kind:"特殊",affiliation:"学園の野良カラス・情報収集家",
+    workUrl:"https://s.kyarapu.com/s/6a661787fa5605e7acb4d35b",
+    card:"assets/characters/special/f.webp",
+    summary:"退屈を嫌い、落とし物と学院中のスクープを集め歩く、掴みどころのない人型のカラス。",
+    quote:"アラヤダ、大スクープじゃないの。",
+    signals:{social:3,charismatic:2,curious:3,rebellious:2,unconventional:3,opportunistic:3},compatibleWith:["introvert","curious","rebellious","opportunistic"],traits:["情報通","収集癖","自由人"]
+  },
+];
 
-const RIVALRY = {
-  makina:{ corvus:"理屈っぽいコルウス寮生に「考えすぎだ」と突っかかるが、いざという時の知略には密かに頼っている。", medicis:"お上品なメディシス寮の建前が気に食わず突っかかる。だが怪我の治療では世話になる腐れ縁。", lumiere:"ノリの良さでルミエール寮と意気投合。お祭り騒ぎの共犯者になりがち。" },
-  corvus:{ makina:"脳筋なマキナ寮を「非効率」と見下しつつ、その純粋な熱さに分析対象以上の何かを感じ始める。", medicis:"情報を巡ってメディシス寮と腹の探り合い。利害が一致すれば最強のタッグ。", lumiere:"感性だけで大魔法を成功させるルミエール寮を見て「数式がバグる！なぜだ!?」と論文を書いて頭を抱える宿敵。" },
-  medicis:{ makina:"単純なマキナ寮を「使いやすい駒」と内心評価しつつ、その裏表のなさに毒気を抜かれる。", corvus:"危険なコルウス寮の知識（特に毒草の知見）を欲して近づく。互いに利用し合う危うい関係。", lumiere:"派手なルミエール寮を表向き嗜めつつ、その影響力を政治利用しようと画策。" },
-  lumiere:{ makina:"熱血なマキナ寮を「最高のミューズ」と気に入り、舞台に引っ張り出して振り回す。", corvus:"陰気なコルウス寮にこそ「隠れた美」を見出し、無理やりスポットライトの下へ。理解不能な天敵でもある。", medicis:"完璧なメディシス寮の仮面を「つまらない」と剥がしにかかる天敵。" },
-};
+const PLAYER_ARCHETYPES = [
+  {
+    id:"guardian",title:"守ることで強くなる守護者",
+    tags:["loyal","protective","devoted","supportive","generous","romantic","awkward"],
+    summary:"大切な人や居場所があると、普段以上の力を発揮するタイプです。判断の中心には、いつも誰かとの絆があります。",
+    strength:"信頼した相手を簡単には見捨てず、困難な場面でも最後まで支え続けられます。",
+    caution:"自分の負担を後回しにしやすく、守ることと抱え込むことの境目を見失う場合があります。",
+    nuance:"人との絆を、行動を決める確かな理由にします。"
+  },
+  {
+    id:"seeker",title:"答えを追い続ける探究者",
+    tags:["curious","truth","research","analytical","obsessive","forbidden","lab","nocturnal"],
+    summary:"分からないままにしておくことが苦手で、納得できる答えへ辿り着くまで考え続けるタイプです。",
+    strength:"表面的な説明に流されず、複雑な問題から本質や見落とされた法則を見つけられます。",
+    caution:"ひとつの問いへ集中しすぎると、周囲の感情や自分の生活を後回しにしがちです。",
+    nuance:"未知や矛盾に出会うほど、思考の速度が上がります。"
+  },
+  {
+    id:"architect",title:"理想を現実に変える設計者",
+    tags:["ambitious","status","strategic","organizer","diplomatic","perfectionist","disciplined","noble","controlling","proud"],
+    summary:"目標から逆算して行動し、人や状況を整えながら結果へ近づくタイプです。理想に対して妥協しません。",
+    strength:"長期的な見通しと自己管理力があり、混乱した場でも順序を作って前へ進められます。",
+    caution:"正しさや完成度を求めるあまり、自分にも他人にも厳しくなりすぎることがあります。",
+    nuance:"曖昧な願いを、実行できる形へ組み直します。"
+  },
+  {
+    id:"artist",title:"世界を自分の色に染める表現者",
+    tags:["artistic","legacy","creative","charismatic","dramatic","performer","expressive","stage","memorable","admiring","illusion"],
+    summary:"感じたものを自分だけの形で表し、人の心を動かすことに喜びを見いだすタイプです。",
+    strength:"独自の感性と伝える力があり、何気ない場面にも意味や美しさを与えられます。",
+    caution:"反応や評価が得られない時、自分の価値まで否定されたように感じやすい面があります。",
+    nuance:"言葉や表現を通して、場の空気そのものを変えます。"
+  },
+  {
+    id:"vanguard",title:"迷うより先に道を開く突破者",
+    tags:["active","combat","direct","impulsive","competitive","martial","destructive","blunt","morning"],
+    summary:"考え込むよりまず動き、正面から状況を変えていくタイプです。競争や逆境があるほど燃えます。",
+    strength:"決断が速く、誰も動けない局面で最初の一歩を踏み出して流れを作れます。",
+    caution:"勢いが強いぶん、相手の準備や気持ちを確認する前に結論へ走ることがあります。",
+    nuance:"停滞した状況に、最初の一撃を入れる役目です。"
+  },
+  {
+    id:"independent",title:"自分の輪郭を守る独立者",
+    tags:["introvert","guarded","detached","independent","rebellious","irregular","unconventional","lonely","calm"],
+    summary:"周囲に流されず、自分のペースと価値観を大切にするタイプです。ひとりで考える時間から力を得ます。",
+    strength:"同調圧力の中でも違和感を見失わず、自分なりの判断を静かに貫けます。",
+    caution:"傷つかないために距離を取りすぎると、助けを求める機会まで逃してしまうことがあります。",
+    nuance:"近さよりも、互いの境界を尊重できる関係を選びます。"
+  },
+  {
+    id:"connector",title:"人と場を動かす交感者",
+    tags:["social","extrovert","refined","opportunistic","flexible","emotional"],
+    summary:"人の反応や場の空気を敏感に読み、関係をつなぎながら状況を動かすタイプです。",
+    strength:"相手に合わせた距離感を作り、異なる立場の人同士にも共通点を見つけられます。",
+    caution:"周囲へ意識を向けすぎると、自分が本当は何を望んでいるのか見えにくくなります。",
+    nuance:"ひとりでは生まれない流れを、人と人の間に作ります。"
+  },
+];
 
 /* ─────────────── ユーティリティ ─────────────── */
-const pick = (arr) => arr[Math.floor(Math.random()*arr.length)];
-
 const StarField = () => {
   const stars = useMemo(()=>Array.from({length:70},(_,i)=>({
     id:i,x:Math.random()*100,y:Math.random()*100,
@@ -292,36 +602,259 @@ const Divider = ({color="#c4a265"}) => (
   </div>
 );
 
-/* ─────────────── キャラ生成 ─────────────── */
-function buildCharacter(primary, secondary, flags, grade) {
-  const k = KIT[primary];
-  const speechKey = flags.speech && SPEECH[flags.speech] ? flags.speech : primary;
-  const sp = SPEECH[speechKey];
-  const m = pick(k.magic);
-  const gradeObj = GRADES.find(g=>g.id===grade) || GRADES[1];
-  const rivalry = RIVALRY[primary][secondary] || "";
-  const hybrid = secondary && secondary!==primary
-    ? `${DORMS[primary].name}を軸にしつつ、${DORMS[secondary].name}の気質（${DORMS[secondary].traits[0]}・${DORMS[secondary].traits[1]}）も併せ持つ二面性が個性になる。`
-    : `${DORMS[primary].name}の気質が極端に振り切れた、寮の象徴のような純粋なキャラ。`;
-  const social = flags.social==="introvert" ? "人付き合いは狭く深く。基本は単独行動だが、心を許した相手には脆い一面を見せる。"
-    : flags.social==="extrovert" ? "誰とでもすぐ打ち解ける。常に人の輪の中心にいるタイプ。" : "";
-  const romance = ({
-    awkward:"恋愛になると途端にポンコツ化。好きな人の前で挙動不審になるギャップが萌え要素。",
-    uninterested:"恋愛に一切興味がない。だからこそ落ちたときの破壊力が物語になる。",
-    calculating:"恋愛すら戦略の一部として計算する。だが本物の感情に出会ったとき仮面が崩れる。",
-    passionate:"恋に全身全霊。一目惚れも修羅場も全力。感情のジェットコースターが魅力。",
-  })[flags.romance] || "";
-  const chrono = ({
-    morning:"早朝型。規律正しい生活が性格に表れている。",
-    night:"夜型。日中は気だるげだが、夜になると豹変する二面性。",
-    irregular:"生活リズムは気分次第。掴みどころのなさが魅力。",
-  })[flags.chrono] || "";
+let twitterWidgetsPromise = null;
+function loadTwitterWidgets() {
+  if (window.twttr && window.twttr.widgets) return Promise.resolve(window.twttr);
+  if (twitterWidgetsPromise) return twitterWidgetsPromise;
+
+  twitterWidgetsPromise = new Promise((resolve,reject)=>{
+    let script = document.getElementById("twitter-wjs");
+    if (!script) {
+      script = document.createElement("script");
+      script.id = "twitter-wjs";
+      script.src = "https://platform.twitter.com/widgets.js";
+      script.async = true;
+      script.charset = "utf-8";
+      document.body.appendChild(script);
+    }
+
+    let attempts = 0;
+    const waitForWidgets = ()=>{
+      if (window.twttr && window.twttr.widgets) {
+        resolve(window.twttr);
+        return;
+      }
+      attempts += 1;
+      if (attempts >= 40) {
+        reject(new Error("X widgets could not be loaded"));
+        return;
+      }
+      window.setTimeout(waitForWidgets,250);
+    };
+    waitForWidgets();
+  }).catch(error=>{
+    twitterWidgetsPromise = null;
+    throw error;
+  });
+
+  return twitterWidgetsPromise;
+}
+
+function XPostEmbed() {
+  const mountRef = useRef(null);
+  const [status,setStatus] = useState("loading");
+
+  useEffect(()=>{
+    let cancelled = false;
+    setStatus("loading");
+    if (mountRef.current) mountRef.current.innerHTML = "";
+
+    loadTwitterWidgets()
+      .then(twttr=>{
+        if (cancelled || !mountRef.current || !mountRef.current.isConnected) return null;
+        return twttr.widgets.createTweet(X_POST_ID,mountRef.current,{
+          theme:"dark",align:"center",conversation:"none",cards:"visible",dnt:true,lang:"ja"
+        });
+      })
+      .then(element=>{
+        if (!cancelled) setStatus(element ? "loaded" : "failed");
+      })
+      .catch(()=>{
+        if (!cancelled) setStatus("failed");
+      });
+
+    return ()=>{ cancelled = true; };
+  },[]);
+
+  return (
+    <div className="x-embed-shell">
+      {status === "loading" && <p className="embed-status" role="status">寮紹介を読み込んでいます…</p>}
+      {status === "failed" && <p className="embed-status">埋め込みを表示できませんでした。下のリンクから寮紹介をご覧いただけます。</p>}
+      <div ref={mountRef} className="x-embed-mount" />
+      <a className="media-fallback" href={X_POST_URL} target="_blank" rel="noopener noreferrer">Xで寮紹介を見る</a>
+    </div>
+  );
+}
+
+function getPublicShareUrl() {
+  const localHosts = ["localhost","127.0.0.1","0.0.0.0","::1"];
+  if (!/^https?:$/.test(window.location.protocol) || localHosts.includes(window.location.hostname)) return "";
+  return `${window.location.origin}${window.location.pathname}`;
+}
+
+function buildShareText(dorm,persona) {
+  return [
+    "レガリア王立魔術学院 寮分け＆人物共鳴診断",
+    `所属寮：${dorm.name}`,
+    `診断タイプ：${persona.playerProfile.title}`,
+    `最も近い人物：${persona.similar.name}`,
+    `相性の良い人物：${persona.compatible.name}`,
+    "",
+    "#レガリア王立魔術学院 #寮分け診断",
+  ].join("\n");
+}
+
+async function copyShareText(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (error) {
+      // file:// や権限拒否時は、下の互換コピーへ切り替える。
+    }
+  }
+  const previousFocus = document.activeElement;
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly","");
+  Object.assign(textarea.style,{position:"fixed",inset:"0 auto auto 0",opacity:"0",pointerEvents:"none"});
+  document.body.appendChild(textarea);
+  let copied = false;
+  try {
+    textarea.focus();
+    textarea.select();
+    copied = Boolean(document.execCommand && document.execCommand("copy"));
+  } catch (error) {
+  } finally {
+    textarea.remove();
+    if (previousFocus && previousFocus.isConnected && typeof previousFocus.focus === "function") previousFocus.focus();
+  }
+  return copied;
+}
+
+function buildSignalCounts(answerChoices) {
+  return answerChoices.reduce((counts,choice,questionIndex)=>{
+    const tags = ANSWER_TAGS[questionIndex] && ANSWER_TAGS[questionIndex][choice];
+    (tags || []).forEach(tag=>{ counts[tag]=(counts[tag]||0)+1; });
+    return counts;
+  },{});
+}
+
+function topReasonLabels(entries,counts) {
+  return entries
+    .map(([tag,weight])=>({tag,value:(counts[tag]||0)*weight}))
+    .filter(item=>item.value>0)
+    .sort((a,b)=>b.value-a.value || a.tag.localeCompare(b.tag))
+    .slice(0,3)
+    .map(item=>TAG_LABELS[item.tag] || item.tag);
+}
+
+function buildPlayerProfile(counts) {
+  const rankedArchetypes = PLAYER_ARCHETYPES.map(archetype=>({
+    archetype,
+    score:archetype.tags.reduce((total,tag)=>total+(counts[tag]||0),0),
+  })).sort((a,b)=>b.score-a.score || a.archetype.id.localeCompare(b.archetype.id));
+  const primary = rankedArchetypes[0].archetype;
+  const secondary = rankedArchetypes[1].archetype;
+  const traits = Object.entries(counts)
+    .sort((a,b)=>b[1]-a[1] || a[0].localeCompare(b[0]))
+    .slice(0,5)
+    .map(([tag])=>TAG_LABELS[tag] || tag);
   return {
-    archetype:pick(k.archetype), strength:pick(k.strength), flaw:pick(k.flaw),
-    magicSchool:m.school, magicTrigger:m.trigger, visual:pick(k.visual), haunt:pick(k.haunt),
-    speechP:sp.p, speechLine:sp.line, grade:gradeObj, rivalry, hybrid,
-    extra:[social,romance,chrono].filter(Boolean),
+    title:primary.title,
+    summary:`${primary.summary} ${secondary.nuance}`,
+    strength:primary.strength,
+    caution:primary.caution,
+    traits,
   };
+}
+
+function buildPersonaMatches(answerChoices,dormScores) {
+  const counts = buildSignalCounts(answerChoices);
+  const maxDorm = Math.max(1,...Object.values(dormScores));
+  const ranked = CHARACTERS.map(profile=>{
+    const signalScore = Object.entries(profile.signals)
+      .reduce((total,[tag,weight])=>total+(counts[tag]||0)*weight,0);
+    const dormFit = profile.dorm == null ? 0 : ((dormScores[profile.dorm]||0)/maxDorm)*7;
+    return {profile,score:signalScore+dormFit};
+  }).sort((a,b)=>b.score-a.score || a.profile.name.localeCompare(b.profile.name,"ja"));
+
+  const similar = ranked[0].profile;
+  const compatible = CHARACTERS
+    .filter(profile=>profile.id!==similar.id)
+    .map(profile=>{
+      const complement = profile.compatibleWith.reduce((total,tag)=>total+(counts[tag]||0)*2.5,0);
+      const resonance = Object.entries(profile.signals)
+        .reduce((total,[tag,weight])=>total+(counts[tag]||0)*weight*.16,0);
+      const freshPerspective = profile.dorm == null || profile.dorm!==similar.dorm ? 1.2 : .4;
+      return {profile,score:complement+resonance+freshPerspective};
+    })
+    .sort((a,b)=>b.score-a.score || a.profile.name.localeCompare(b.profile.name,"ja"))[0].profile;
+
+  const similarityReasons = topReasonLabels(Object.entries(similar.signals),counts);
+  const compatibilityReasons = topReasonLabels(compatible.compatibleWith.map(tag=>[tag,1]),counts);
+  const playerProfile = buildPlayerProfile(counts);
+  return {similar,compatible,similarityReasons,compatibilityReasons,playerProfile,counts};
+}
+
+function PlayerProfile({profile,accent,border}) {
+  return (
+    <section style={{marginTop:12,animation:"slideUp .6s ease .6s both"}}>
+      <Divider color={border} />
+      <div className="cinzel" style={{textAlign:"center",fontSize:12,color:accent,marginBottom:7}}>YOUR PROFILE</div>
+      <h2 style={{textAlign:"center",fontSize:21,lineHeight:1.6,color:"#f3ead4",marginBottom:9}}>{profile.title}</h2>
+      <p style={{fontSize:13,lineHeight:1.9,color:"#c4b89a",textAlign:"center",maxWidth:570,margin:"0 auto 16px"}}>{profile.summary}</p>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(2,minmax(0,1fr))",gap:10,marginBottom:13}} className="insight-grid">
+        <div style={{padding:"14px 15px",background:"rgba(255,255,255,0.025)",borderLeft:`2px solid ${border}aa`,borderRadius:"0 6px 6px 0"}}>
+          <div style={{fontSize:11,color:accent,marginBottom:6}}>あなたの強み</div>
+          <p style={{fontSize:13,lineHeight:1.8,color:"#d8ccb4"}}>{profile.strength}</p>
+        </div>
+        <div style={{padding:"14px 15px",background:"rgba(255,255,255,0.025)",borderLeft:`2px solid ${border}66`,borderRadius:"0 6px 6px 0"}}>
+          <div style={{fontSize:11,color:accent,marginBottom:6}}>つまずきやすい点</div>
+          <p style={{fontSize:13,lineHeight:1.8,color:"#d8ccb4"}}>{profile.caution}</p>
+        </div>
+      </div>
+      <div style={{display:"flex",flexWrap:"wrap",gap:7,justifyContent:"center"}}>
+        {profile.traits.map(trait=>(
+          <span key={trait} style={{padding:"5px 11px",fontSize:11,color:accent,background:`${border}1e`,border:`1px solid ${border}44`,borderRadius:6}}>{trait}</span>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function PersonaCard({label,profile,reasons,mode}) {
+  const dorm = profile.dorm == null ? null : DORMS[profile.dorm];
+  const accent = dorm ? dorm.accent : "#d6b86f";
+  const border = dorm ? dorm.color : "#8f7335";
+  const reasonText = reasons.length ? reasons.join("・") : "回答全体のバランス";
+  const workLinks = [
+    ...(profile.workUrl ? [{label:"作品へ",url:profile.workUrl}] : []),
+    ...(profile.additionalWorkLinks || []),
+  ];
+  return (
+    <article className="persona-card" style={{padding:"18px 17px",border:`1px solid ${border}66`,borderRadius:8,
+      background:`linear-gradient(145deg,${border}1c,rgba(255,255,255,0.025))`,display:"flex",flexDirection:"column"}}>
+      <div style={{fontSize:11,color:accent,marginBottom:8}}>{label}</div>
+      {profile.card && (
+        <img src={profile.card} alt={profile.name+"の人物カード"} decoding="async"
+          style={{width:"100%",aspectRatio:"3 / 5",objectFit:"cover",display:"block",marginBottom:14,
+            borderRadius:6,border:`1px solid ${border}88`,background:"#090611",boxShadow:"0 12px 32px rgba(0,0,0,.4)"}} />
+      )}
+      <h3 style={{fontSize:19,lineHeight:1.45,color:"#f3ead4",marginBottom:4,overflowWrap:"anywhere"}}>{profile.name}</h3>
+      <div style={{fontSize:11,color:"#8a7d6b",lineHeight:1.6,marginBottom:12}}>{profile.affiliation}</div>
+      <p style={{fontSize:13,color:"#c4b89a",lineHeight:1.8,marginBottom:12}}>{profile.summary}</p>
+      <p style={{fontSize:12,color:"#9e907b",lineHeight:1.7,fontStyle:"italic",marginBottom:13}}>「{profile.quote}」</p>
+      <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:13}}>
+        {profile.traits.map(trait=>(
+          <span key={trait} style={{padding:"4px 9px",fontSize:10,color:accent,border:`1px solid ${border}55`,borderRadius:6,background:`${border}18`}}>{trait}</span>
+        ))}
+      </div>
+      <div style={{marginTop:"auto"}}>
+        <div style={{paddingTop:11,borderTop:"1px solid rgba(255,255,255,0.07)",fontSize:11,lineHeight:1.65,color:"#7f7463"}}>
+          {mode==="similar" ? "回答に強く表れた気質" : "相性を結ぶ気質"}<br/>
+          <span style={{color:accent}}>{reasonText}</span>
+        </div>
+        {workLinks.map(work => (
+          <a key={work.url} className="persona-work-link" href={work.url} target="_blank" rel="noopener noreferrer"
+            aria-label={`${profile.name}の${work.label}（新しいタブで開きます）`}
+            style={{color:accent,border:`1px solid ${border}99`,background:`linear-gradient(135deg,${border}2e,rgba(0,0,0,0.22))`,boxShadow:`inset 0 0 18px ${border}12`}}>
+            {work.label}
+          </a>
+        ))}
+      </div>
+    </article>
+  );
 }
 
 /* ─────────────── メインアプリ ─────────────── */
@@ -329,16 +862,48 @@ function App() {
   const [phase,setPhase] = useState("intro");
   const [current,setCurrent] = useState(0);
   const [scores,setScores] = useState({makina:0,corvus:0,medicis:0,lumiere:0});
-  const [flags,setFlags] = useState({});
   const [selected,setSelected] = useState(null);
   const [fade,setFade] = useState("in");
   const [sorted,setSorted] = useState(null);
-  const [grade,setGrade] = useState(2);
-  const [character,setCharacter] = useState(null);
+  const [answerChoices,setAnswerChoices] = useState([]);
+  const [persona,setPersona] = useState(null);
   const [showScore,setShowScore] = useState(false);
+  const [shareStatus,setShareStatus] = useState("");
+  const [bgmPlaying,setBgmPlaying] = useState(false);
+  const [bgmStatus,setBgmStatus] = useState("");
+  const bgmRef = useRef(null);
 
   const transition = (fn,delay=450)=>{ setFade("out"); setTimeout(()=>{fn();setFade("in");},delay); };
   const start = ()=>transition(()=>setPhase("quiz"),500);
+
+  const stopBgm = ()=>{
+    const audio=bgmRef.current;
+    if(audio){
+      audio.pause();
+      audio.currentTime=0;
+    }
+    setBgmPlaying(false);
+    setBgmStatus("");
+  };
+
+  const toggleBgm = async()=>{
+    const audio=bgmRef.current;
+    if(!audio) return;
+    setBgmStatus("");
+    if(!audio.paused){
+      stopBgm();
+      return;
+    }
+    audio.volume=0.3;
+    audio.currentTime=0;
+    try{
+      await audio.play();
+      setBgmPlaying(true);
+    }catch(error){
+      setBgmPlaying(false);
+      setBgmStatus("BGMを再生できませんでした。時間を置いてもう一度お試しください。");
+    }
+  };
 
   const dormMax = useMemo(()=>{
     const mx={makina:0,corvus:0,medicis:0,lumiere:0};
@@ -353,33 +918,59 @@ function App() {
   const answer = (opt,idx)=>{
     if(selected!==null) return;
     setSelected(idx);
+    const nextChoices=[...answerChoices]; nextChoices[current]=idx; setAnswerChoices(nextChoices);
     const ns={...scores}; Object.entries(opt.s||{}).forEach(([k,v])=>ns[k]+=v); setScores(ns);
-    const nf={...flags}; if(opt.f) Object.entries(opt.f).forEach(([k,v])=>nf[k]=v); setFlags(nf);
     setTimeout(()=>{
       if(current<QUESTIONS.length-1){
         transition(()=>{setCurrent(c=>c+1);setSelected(null);},380);
       } else {
         const arr=Object.entries(ns).sort((a,b)=>b[1]-a[1]); setSorted(arr);
-        transition(()=>{setPhase("grade");setSelected(null);},550);
+        setPersona(buildPersonaMatches(nextChoices,ns));
+        transition(()=>{setPhase("result");setSelected(null);},550);
       }
     },520);
   };
 
-  const confirmGrade = ()=>{
-    setCharacter(buildCharacter(sorted[0][0],sorted[1][0],flags,grade));
-    transition(()=>setPhase("result"),500);
+  const reset = ()=>{
+    stopBgm();
+    transition(()=>{
+      setPhase("intro");setCurrent(0);setScores({makina:0,corvus:0,medicis:0,lumiere:0});
+      setSelected(null);setSorted(null);setAnswerChoices([]);setPersona(null);setShowScore(false);setShareStatus("");
+    },500);
   };
-  const reroll = ()=> setCharacter(buildCharacter(sorted[0][0],sorted[1][0],flags,grade));
-  const reset = ()=>transition(()=>{
-    setPhase("intro");setCurrent(0);setScores({makina:0,corvus:0,medicis:0,lumiere:0});
-    setFlags({});setSelected(null);setSorted(null);setGrade(2);setCharacter(null);setShowScore(false);
-  },500);
 
   const D = sorted ? DORMS[sorted[0][0]] : null;
-  const bg = D && (phase==="result"||phase==="grade") ? D.bg
+  const bgmTrack = sorted ? BGM_TRACKS[sorted[0][0]] : null;
+  const shareResult = async()=>{
+    if (!D || !persona) return;
+    const title = "レガリア王立魔術学院 ― 寮分け＆人物共鳴診断";
+    const text = buildShareText(D,persona);
+    const url = getPublicShareUrl();
+    const shareData = url ? {title,text,url} : {title,text};
+    const copyText = url ? `${text}\n${url}` : text;
+    setShareStatus("");
+
+    if (typeof navigator.share === "function") {
+      try {
+        await navigator.share(shareData);
+        setShareStatus("共有しました");
+        return;
+      } catch (error) {
+        if (error && error.name === "AbortError") return;
+      }
+    }
+
+    if (await copyShareText(copyText)) {
+      setShareStatus("共有文をコピーしました");
+      return;
+    }
+    window.prompt("以下の共有文をコピーしてください",copyText);
+    setShareStatus("共有文を表示しました");
+  };
+  const bg = D && phase==="result" ? D.bg
     : "linear-gradient(135deg,#07060c 0%,#100e1c 50%,#07060c 100%)";
 
-  const wrap = {position:"relative",zIndex:1,maxWidth:680,margin:"0 auto",padding:"40px 20px",
+  const wrap = {position:"relative",zIndex:1,maxWidth:phase==="intro"?960:680,margin:"0 auto",padding:phase==="intro"?"32px 20px 68px":"40px 20px",
     opacity:fade==="in"?1:0,transform:fade==="in"?"translateY(0)":"translateY(12px)",
     transition:"opacity .4s ease, transform .4s ease"};
   const goldBtn = (extra={})=>({display:"block",margin:"0 auto",padding:"14px 46px",fontSize:15,fontWeight:700,
@@ -404,21 +995,43 @@ function App() {
         {/* INTRO */}
         {phase==="intro" && (
           <div style={{textAlign:"center"}}>
-            <img src="assets/crest.webp" alt="紋章" style={{width:104,height:104,objectFit:"contain",margin:"0 auto 14px",display:"block",
+            <div className="intro-brand">
+            <img src="assets/crest.webp" alt="紋章" style={{width:110,height:138,objectFit:"contain",margin:"0 auto 14px",display:"block",
               filter:"drop-shadow(0 4px 18px rgba(0,0,0,0.6))",animation:"floatCrest 5s ease-in-out infinite"}} />
             <div className="cinzel" style={{fontSize:12,letterSpacing:5,color:"#c4a265",marginBottom:14,fontWeight:700}}>REGALIA ROYAL MAGIC ACADEMY</div>
             <h1 style={{fontSize:29,fontWeight:900,lineHeight:1.4,marginBottom:6,
               background:"linear-gradient(180deg,#f3ead4,#c4a265)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>
               レガリア王立魔術学院</h1>
-            <h2 style={{fontSize:16,fontWeight:400,color:"#b8a88a",marginBottom:4}}>寮分け＆キャラクター生成診断</h2>
-            <Divider />
-            <p style={{fontSize:14,lineHeight:2,color:"#a89b87",maxWidth:500,margin:"0 auto 8px"}}>
-              あなたが創ろうとしているキャラクターは、<br/>武力・知識・政治・芸術──どの思想を宿すのか。</p>
-            <p style={{fontSize:13,color:"#7a6f60",marginBottom:30}}>全18問に答えると、所属寮を判定し、<br/>キャラクター設定の「スターターキット」を生成します。</p>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,maxWidth:440,margin:"0 auto 34px"}}>
+            <h2 style={{fontSize:16,fontWeight:400,color:"#b8a88a",marginBottom:4}}>寮分け＆人物共鳴診断</h2>
+            </div>
+
+            <section className="pv-section" data-media="youtube" aria-labelledby="pv-title">
+              <div className="cinzel media-eyebrow">FEATURED FILM</div>
+              <h3 id="pv-title" className="media-title">キャラクター紹介PV</h3>
+              <div className="pv-frame">
+                <iframe
+                  src={`https://www.youtube-nocookie.com/embed/${YOUTUBE_VIDEO_ID}?playsinline=1&rel=0`}
+                  title="レガリア王立魔術学院 キャラクター紹介PV"
+                  loading="eager"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  allowFullScreen
+                />
+              </div>
+              <a className="media-fallback" href={YOUTUBE_URL} target="_blank" rel="noopener noreferrer">YouTubeでPVを見る</a>
+            </section>
+
+            <div className="intro-copy">
+              <Divider />
+              <p style={{fontSize:14,lineHeight:2,color:"#a89b87",margin:"0 auto 8px"}}>
+                もしあなたがこの学院へ招かれたなら、<br/>武力・知識・政治・芸術──どの思想を選ぶのか。</p>
+              <p style={{fontSize:13,color:"#7a6f60",lineHeight:1.8}}>全18問から、あなたの所属寮と性格傾向を読み解き、<br/>学院の29人物から「近い人物」と「相性の良い人物」を導きます。</p>
+            </div>
+
+            <div className="intro-dorm-grid">
               {Object.values(DORMS).map((d,i)=>(
-                <div key={i} style={{padding:"14px 12px",border:`1px solid ${d.color}55`,borderRadius:8,
-                  background:`linear-gradient(135deg,${d.color}16,transparent)`,textAlign:"center"}}>
+                <div key={i} className="intro-dorm-card" style={{border:`1px solid ${d.color}55`,
+                  background:`linear-gradient(135deg,${d.color}16,transparent)`}}>
                   <div style={{fontSize:20,marginBottom:3,color:d.accent}}>{d.icon}</div>
                   <div style={{fontSize:13,fontWeight:700,color:d.accent}}>{d.name}</div>
                   <div className="cinzel" style={{fontSize:9,letterSpacing:2,color:"#8a7d6b"}}>{d.latin}</div>
@@ -426,7 +1039,17 @@ function App() {
                 </div>
               ))}
             </div>
-            <button onClick={start} style={goldBtn({animation:"pulseGlow 3s ease-in-out infinite"})}>ENTER</button>
+            <button className="intro-start-button" onClick={start} style={goldBtn({padding:"12px 24px",color:"#e6cc93",background:"linear-gradient(135deg,rgba(18,14,10,0.94),rgba(45,34,20,0.94))",border:"1px solid #c4a265",boxShadow:"inset 0 0 0 1px rgba(243,234,212,0.08)",animation:"pulseGlow 3s ease-in-out infinite"})}>
+              <span style={{display:"block",fontFamily:"'Noto Serif JP',serif",fontSize:17,letterSpacing:2}}>診断をはじめる</span>
+              <span className="cinzel" style={{display:"block",marginTop:3,fontSize:9,letterSpacing:4}}>START DIAGNOSIS</span>
+            </button>
+
+            <section className="dorm-chronicles" data-media="x" aria-labelledby="dorm-chronicles-title">
+              <div className="cinzel media-eyebrow">DORM CHRONICLES</div>
+              <h3 id="dorm-chronicles-title" className="media-title">寮の記録</h3>
+              <p className="dorm-chronicles-copy">コラボメンバーの一人による投稿です。4つの寮の概要と、コラボ参加メンバーを紹介しています。</p>
+              <XPostEmbed />
+            </section>
           </div>
         )}
 
@@ -460,40 +1083,33 @@ function App() {
           </div>
         )}
 
-        {/* GRADE */}
-        {phase==="grade" && D && (
-          <div style={{textAlign:"center"}}>
-            <div className="cinzel" style={{fontSize:12,letterSpacing:4,color:"#7a6f60",marginBottom:14}}>STEP 2 — SELECT YEAR</div>
-            <div style={{fontSize:38,marginBottom:6,color:D.accent}}>{D.icon}</div>
-            <p style={{fontSize:14,color:"#b8a88a",marginBottom:6}}>所属は <span style={{color:D.accent,fontWeight:700}}>{D.name}</span> に決定。</p>
-            <p style={{fontSize:13,color:"#7a6f60",marginBottom:24}}>このキャラは何年生？ 立ち位置がキャラ設定に反映されます。</p>
-            <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:26}}>
-              {GRADES.map(g=>{
-                const sel=grade===g.id;
-                return (
-                  <button key={g.id} onClick={()=>setGrade(g.id)} style={{
-                    padding:"14px 18px",textAlign:"left",borderRadius:8,transition:"all .25s ease",
-                    background:sel?`${D.color}26`:"rgba(255,255,255,0.03)",
-                    border:sel?`1px solid ${D.accent}99`:"1px solid rgba(255,255,255,0.07)"}}>
-                    <div style={{fontSize:15,fontWeight:700,color:sel?D.accent:"#c4b89a",marginBottom:3}}>{g.label}</div>
-                    <div style={{fontSize:12,color:"#8a7d6b",lineHeight:1.6}}>{g.hint}</div>
-                  </button>
-                );
-              })}
-            </div>
-            <button onClick={confirmGrade} style={goldBtn()}>GENERATE</button>
-          </div>
-        )}
-
         {/* RESULT */}
-        {phase==="result" && D && character && (
+        {phase==="result" && D && persona && (
           <div>
             <div style={{textAlign:"center"}}>
               <div className="cinzel" style={{fontSize:12,letterSpacing:4,color:"#7a6f60",marginBottom:16}}>SORTING RESULT</div>
               <div style={{fontSize:50,marginBottom:8,color:D.accent,animation:"fadeIn .8s ease both"}}>{D.icon}</div>
               <h1 style={{fontSize:30,fontWeight:900,color:D.accent,marginBottom:2,animation:"fadeIn .8s ease .2s both"}}>{D.name}</h1>
               <div className="cinzel" style={{fontSize:13,letterSpacing:4,color:"#8a7d6b",marginBottom:8,animation:"fadeIn .8s ease .3s both"}}>{D.latin}</div>
-              <div style={{fontSize:13,color:D.accent,marginBottom:18,animation:"fadeIn .8s ease .35s both"}}>{character.grade.label} ・ {D.subtitle}</div>
+              <div style={{fontSize:13,color:D.accent,marginBottom:18,animation:"fadeIn .8s ease .35s both"}}>あなたの所属寮 ・ {D.subtitle}</div>
+
+              {bgmTrack && (
+                <div style={{margin:"0 auto 20px",animation:"fadeIn .8s ease .38s both"}}>
+                  <audio ref={bgmRef} src={bgmTrack.src} loop preload="none"
+                    onPlay={()=>setBgmPlaying(true)} onPause={()=>setBgmPlaying(false)}
+                    onError={()=>{setBgmPlaying(false);setBgmStatus("BGMを読み込めませんでした。音声ファイルをご確認ください。");}} />
+                  <button type="button" onClick={toggleBgm} aria-pressed={bgmPlaying}
+                    aria-label={`${bgmTrack.title}のBGMを${bgmPlaying?"停止":"再生"}`}
+                    style={{minWidth:156,padding:"10px 20px",fontSize:13,fontWeight:700,letterSpacing:2,
+                      color:bgmPlaying?"#0a0a12":D.accent,
+                      background:bgmPlaying?`linear-gradient(135deg,${D.accent},${D.color})`:"rgba(0,0,0,0.2)",
+                      border:`1px solid ${D.color}99`,borderRadius:999}}>
+                    <span aria-hidden="true">♪</span> {bgmPlaying?"BGM OFF":"BGM ON"}
+                  </button>
+                  <div style={{fontSize:11,color:"#7a6f60",marginTop:7}}>♪ {bgmTrack.title}</div>
+                  <p role="status" aria-live="polite" style={{minHeight:bgmStatus?18:0,fontSize:11,color:D.accent,marginTop:bgmStatus?7:0}}>{bgmStatus}</p>
+                </div>
+              )}
 
               <img src={D.sheet} alt={D.name+"設定資料"} style={{width:"100%",borderRadius:10,border:`1px solid ${D.color}66`,
                 boxShadow:`0 8px 30px rgba(0,0,0,0.5)`,marginBottom:6,animation:"fadeIn .8s ease .4s both"}} />
@@ -505,43 +1121,21 @@ function App() {
               <p style={{fontSize:14,lineHeight:2,color:"#c4b89a",textAlign:"left",marginBottom:8,animation:"fadeIn .8s ease .55s both"}}>{D.desc}</p>
             </div>
 
-            <div style={{marginTop:10,animation:"slideUp .6s ease .6s both"}}>
-              <Divider color={D.color} />
-              <div className="cinzel" style={{textAlign:"center",fontSize:12,letterSpacing:3,color:D.accent,marginBottom:14}}>CHARACTER STARTER KIT</div>
+            <PlayerProfile profile={persona.playerProfile} accent={D.accent} border={D.color} />
 
-              {[
-                ["アーキタイプ（役割）",character.archetype],
-                ["性格の核（長所）",character.strength],
-                ["性格の核（弱点）",character.flaw],
-                ["魔法系統",character.magicSchool],
-                ["魔法の発動トリガー",character.magicTrigger],
-                ["一人称",character.speechP],
-                ["口調サンプル",character.speechLine],
-                ["ビジュアル方向性",character.visual],
-                ["行きつけの場所",character.haunt],
-                ["学年・立ち位置",character.grade.hook],
-                ["二面性のヒント（2位の寮）",character.hybrid],
-                ["他寮との因縁フック",character.rivalry],
-              ].map(([label,val],i)=> val ? (
-                <div key={i} style={{marginBottom:11,padding:"12px 16px",background:"rgba(255,255,255,0.025)",borderLeft:`2px solid ${D.color}aa`,borderRadius:"0 6px 6px 0"}}>
-                  <div style={{fontSize:11,letterSpacing:1,color:D.accent,marginBottom:5}}>{label}</div>
-                  <div style={{fontSize:14,lineHeight:1.7,color:"#d8ccb4"}}>{val}</div>
+            {persona && (
+              <section style={{marginTop:12,animation:"slideUp .6s ease .6s both"}}>
+                <Divider color={D.color} />
+                <div className="cinzel" style={{textAlign:"center",fontSize:12,color:D.accent,marginBottom:7}}>PERSONA RESONANCE</div>
+                <p style={{textAlign:"center",fontSize:12,color:"#7a6f60",lineHeight:1.7,marginBottom:16}}>
+                  同じ答えから、「似ている人物」と「関係が育ちやすい人物」を別々に判定しました。
+                </p>
+                <div className="persona-grid">
+                  <PersonaCard label="あなたに最も近い人物" profile={persona.similar} reasons={persona.similarityReasons} mode="similar" />
+                  <PersonaCard label="あなたと相性の良い人物" profile={persona.compatible} reasons={persona.compatibilityReasons} mode="compatible" />
                 </div>
-              ) : null)}
-
-              {character.extra.length>0 && (
-                <div style={{marginBottom:11,padding:"12px 16px",background:"rgba(255,255,255,0.025)",borderLeft:`2px solid ${D.color}aa`,borderRadius:"0 6px 6px 0"}}>
-                  <div style={{fontSize:11,letterSpacing:1,color:D.accent,marginBottom:5}}>回答から拾った追加の個性</div>
-                  {character.extra.map((e,j)=>(<div key={j} style={{fontSize:14,lineHeight:1.7,color:"#d8ccb4",marginTop:j?6:0}}>・{e}</div>))}
-                </div>
-              )}
-
-              <div style={{display:"flex",flexWrap:"wrap",gap:8,justifyContent:"center",margin:"18px 0 6px"}}>
-                {D.traits.map(t=>(
-                  <span key={t} style={{padding:"5px 14px",fontSize:12,color:D.accent,background:`${D.color}1e`,border:`1px solid ${D.color}44`,borderRadius:20}}>{t}</span>
-                ))}
-              </div>
-            </div>
+              </section>
+            )}
 
             <div style={{textAlign:"center"}}>
               <button onClick={()=>setShowScore(!showScore)} style={{background:"none",border:"none",color:"#7a6f60",fontSize:13,margin:"8px 0",padding:"8px 16px"}}>
@@ -563,17 +1157,18 @@ function App() {
                       </div>
                     );
                   })}
-                  <p style={{fontSize:11,color:"#5a5244",marginTop:8,lineHeight:1.6}}>※ 1位と2位が僅差なら、両寮の気質を併せ持つ「ハイブリッドなキャラ」として深みを出せます。</p>
+                  <p style={{fontSize:11,color:"#5a5244",marginTop:8,lineHeight:1.6}}>※ 1位と2位が僅差なら、あなたは両方の寮の気質を強く併せ持っています。</p>
                 </div>
               )}
             </div>
 
             <div style={{display:"flex",gap:12,justifyContent:"center",flexWrap:"wrap",marginTop:16}}>
-              <button onClick={reroll} style={{padding:"13px 26px",fontSize:14,fontWeight:700,color:D.accent,background:"transparent",border:`1px solid ${D.accent}99`,borderRadius:6,letterSpacing:1}}>🎲 別のキャラ案を生成</button>
-              <button onClick={reset} style={{padding:"13px 26px",fontSize:14,fontWeight:700,color:"#0a0a12",background:`linear-gradient(135deg,${D.accent},${D.color})`,border:"none",borderRadius:6,letterSpacing:1}}>最初から診断</button>
+              <button type="button" onClick={shareResult} style={{padding:"13px 26px",minWidth:190,fontSize:14,fontWeight:700,color:"#0a0a12",background:`linear-gradient(135deg,${D.accent},${D.color})`,border:"none",borderRadius:6,letterSpacing:1}}>この結果をシェア</button>
+              <button type="button" onClick={reset} style={{padding:"13px 26px",fontSize:14,fontWeight:700,color:D.accent,background:"rgba(0,0,0,0.16)",border:`1px solid ${D.color}88`,borderRadius:6,letterSpacing:1}}>最初から診断</button>
             </div>
+            <p id="share-status" role="status" aria-live="polite" style={{minHeight:20,textAlign:"center",fontSize:12,color:D.accent,marginTop:10}}>{shareStatus}</p>
             <p style={{textAlign:"center",fontSize:11,color:"#5a5244",marginTop:22,lineHeight:1.7}}>
-              生成された設定はあくまで「種」です。<br/>気に入った要素を拾い、自由にアレンジしてキャラを育ててください。
+              この診断は、回答に表れた価値観や行動傾向を<br/>レガリア王立魔術学院の世界観に重ねたものです。
             </p>
           </div>
         )}
