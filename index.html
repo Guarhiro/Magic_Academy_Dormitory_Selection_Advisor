@@ -453,6 +453,7 @@ const CHARACTERS = [
   {
     id:"runo",name:"ルーノ・ナイトフォール",dorm:"medicis",kind:"教師",affiliation:"教師・対人心理学／高等結界学",
     workUrl:"https://kyarapu.com/detail/6a5e46c76a4d560d330f2433",
+    additionalWorkLinks:[{label:"双子の作品へ",url:"https://kyarapu.com/detail/6a5e46a0995f629ecfee9f85"}],
     card:"assets/characters/medicis/runo.webp",
     summary:"穏やかな問いで相手自身に答えを選ばせる、柔らかな物腰と冷静な観察眼を持つ教師。",
     quote:"その選択もいいですね。他には何が思いつきました？",
@@ -461,6 +462,7 @@ const CHARACTERS = [
   {
     id:"rune",name:"ルーン・ナイトフォール",dorm:"corvus",kind:"教師",affiliation:"教師・魔法陣構築学／特殊魔法学",
     workUrl:"https://kyarapu.com/detail/6a5e46e212cf032430b534f9",
+    additionalWorkLinks:[{label:"双子の作品へ",url:"https://kyarapu.com/detail/6a5e46a0995f629ecfee9f85"}],
     card:"assets/characters/corvus/rune.webp",
     summary:"答えを押しつけず、生徒の思考が結論へ至るまで静かに付き合う魔法陣研究者。",
     quote:"答えを決めるのは俺ではなく、君です。",
@@ -816,6 +818,10 @@ function PersonaCard({label,profile,reasons,mode}) {
   const accent = dorm ? dorm.accent : "#d6b86f";
   const border = dorm ? dorm.color : "#8f7335";
   const reasonText = reasons.length ? reasons.join("・") : "回答全体のバランス";
+  const workLinks = [
+    ...(profile.workUrl ? [{label:"作品へ",url:profile.workUrl}] : []),
+    ...(profile.additionalWorkLinks || []),
+  ];
   return (
     <article className="persona-card" style={{padding:"18px 17px",border:`1px solid ${border}66`,borderRadius:8,
       background:`linear-gradient(145deg,${border}1c,rgba(255,255,255,0.025))`,display:"flex",flexDirection:"column"}}>
@@ -839,13 +845,13 @@ function PersonaCard({label,profile,reasons,mode}) {
           {mode==="similar" ? "回答に強く表れた気質" : "相性を結ぶ気質"}<br/>
           <span style={{color:accent}}>{reasonText}</span>
         </div>
-        {profile.workUrl && (
-          <a className="persona-work-link" href={profile.workUrl} target="_blank" rel="noopener noreferrer"
-            aria-label={`${profile.name}の作品へ（新しいタブで開きます）`}
+        {workLinks.map(work => (
+          <a key={work.url} className="persona-work-link" href={work.url} target="_blank" rel="noopener noreferrer"
+            aria-label={`${profile.name}の${work.label}（新しいタブで開きます）`}
             style={{color:accent,border:`1px solid ${border}99`,background:`linear-gradient(135deg,${border}2e,rgba(0,0,0,0.22))`,boxShadow:`inset 0 0 18px ${border}12`}}>
-            作品へ
+            {work.label}
           </a>
-        )}
+        ))}
       </div>
     </article>
   );
